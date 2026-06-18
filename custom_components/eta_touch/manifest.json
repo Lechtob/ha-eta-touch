@@ -2,13 +2,14 @@
   "domain": "eta_touch",
   "name": "ETA Touch",
   "after_dependencies": [],
-  "codeowners": [],
+  "codeowners": ["@Lechtob"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/tobia/eta-touch-integration",
+  "documentation": "https://github.com/Lechtob/ha-eta-touch",
+  "integration_type": "hub",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/tobia/eta-touch-integration/issues",
+  "issue_tracker": "https://github.com/Lechtob/ha-eta-touch/issues",
+  "loggers": ["etatouch_restful"],
   "requirements": ["py-etatouch-restful==0.1.0"],
   "version": "0.1.0"
 }
-

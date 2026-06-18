@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import re
+from dataclasses import dataclass
 
 _VARIABLE_RE = re.compile(r"^\d+/\d+/\d+/\d+/\d+$")
 

@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
+import voluptuous as vol
+from etatouch_restful import EtaTouchConnectionError, EtaTouchResponseError
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
-import voluptuous as vol
+from homeassistant.exceptions import HomeAssistantError
 
 from .const import DOMAIN, SERVICE_SET_VARIABLE
 from .coordinator import EtaTouchDataUpdateCoordinator
@@ -18,6 +21,8 @@ ATTR_BEGIN = "begin"
 ATTR_END = "end"
 ATTR_URI = "uri"
 ATTR_VALUE = "value"
+
+_LOGGER = logging.getLogger(__name__)
 
 SET_VARIABLE_SCHEMA = vol.Schema(
     {
@@ -58,15 +63,19 @@ def _async_register_services(hass: HomeAssistant) -> None:
         begin = call.data.get(ATTR_BEGIN)
         end = call.data.get(ATTR_END)
 
-        coordinators = [
+        coordinators: list[EtaTouchDataUpdateCoordinator] = [
             entry.runtime_data
             for entry in hass.config_entries.async_entries(DOMAIN)
             if hasattr(entry, "runtime_data")
         ]
         if not coordinators:
-            return
+            raise HomeAssistantError("No ETA Touch config entry is loaded")
 
-        await coordinators[0].client.set_variable(uri, value, begin=begin, end=end)
+        try:
+            await coordinators[0].client.set_variable(uri, value, begin=begin, end=end)
+        except (EtaTouchConnectionError, EtaTouchResponseError) as err:
+            _LOGGER.warning("Failed to set ETA Touch variable %s: %s", uri, err)
+            raise HomeAssistantError(f"Failed to set ETA Touch variable {uri}") from err
         await coordinators[0].async_request_refresh()
 
     hass.services.async_register(
