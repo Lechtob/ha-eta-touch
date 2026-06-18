@@ -1,37 +1,67 @@
 # ETA Touch for Home Assistant
 
-HACS-faehige Home-Assistant-Integration fuer ETA Touch Heizkessel.
+HACS-compatible Home Assistant integration for ETA Touch heating systems.
 
 ## Installation
 
-1. Dieses Repository als HACS Custom Repository vom Typ `Integration` hinzufuegen.
-2. Integration installieren.
-3. Home Assistant neu starten.
-4. `Einstellungen > Geraete & Dienste > Integration hinzufuegen > ETA Touch` auswaehlen.
+1. Add `https://github.com/Lechtob/ha-eta-touch` as a HACS custom repository of type
+   `Integration`.
+2. Install the integration through HACS.
+3. Restart Home Assistant.
+4. Go to `Settings > Devices & services > Add integration > ETA Touch`.
 
-## Konfiguration
+## Configuration
 
-Der Config Flow fragt:
+The config flow asks for:
 
-- Host/IP des ETA Touch Geraets.
-- Port, normalerweise `8080`.
-- Polling-Intervall in Sekunden.
-- Eine Sensorliste, eine Variable pro Zeile.
+- ETA Touch host/IP.
+- Port, usually `8080`.
+- Polling interval in seconds.
+- Sensor variables, one variable per line.
 
-Sensorzeilen koennen so aussehen:
+Sensor lines can look like this:
 
 ```text
 Kesseltemperatur=112/10021/0/0/12150
 112/10021/0/0/12112
 ```
 
-Die URIs koennen aus `/user/menu` und `/user/varinfo/<uri>` ermittelt werden.
+URIs can be discovered from `/user/menu` and inspected with `/user/varinfo/<uri>`.
 
 ## Status
 
-Dies ist ein erster Projekt-Schnitt. Sensoren und aktive Fehler sind umgesetzt. Selects,
-Switches und Services fuer schreibbare Variablen sollten auf Basis von `/user/varinfo`
-als naechste Features folgen.
+Implemented:
+
+- Config flow setup.
+- Sensors for configured ETA variables.
+- Binary sensor for active ETA errors.
+- Service `eta_touch.set_variable` for writable ETA variables.
+
+Next features should use `/user/varinfo` to classify entities automatically as sensors,
+binary sensors, selects or switches.
+
+## Local Smoke Test
+
+The Python dependency is published as `py-etatouch-restful==0.1.0`. A quick read-only
+check against a local boiler:
+
+```python
+import asyncio
+
+from etatouch_restful import EtaTouchClient
+
+
+async def main() -> None:
+    async with EtaTouchClient("192.168.0.159") as client:
+        print(await client.get_api_version())
+        print(len(await client.get_errors()))
+
+
+asyncio.run(main())
+```
+
+For normal development use Home Assistant's config flow rather than calling write
+services manually.
 
 ## Repository Setup
 
@@ -43,7 +73,7 @@ Empfohlene GitHub-Repo-Einstellungen:
 - HACS Kategorie: `Integration`
 - Home-Assistant-Domain: `eta_touch`
 
-Initialer Push in ein leeres Repo:
+Initial push to an empty repository:
 
 ```powershell
 git init
@@ -56,9 +86,7 @@ git switch -c develop
 git push -u origin develop
 ```
 
-## Dependency Hinweis
+## Dependency
 
-`custom_components/eta_touch/manifest.json` referenziert aktuell
-`py-etatouch-restful==0.1.0`. Fuer HACS-Installationen muss diese Version auf PyPI
-verfuegbar sein oder waehrend der fruehen Entwicklung lokal in Home Assistant
-installiert werden.
+`custom_components/eta_touch/manifest.json` requires `py-etatouch-restful==0.1.0`,
+which is available on PyPI.

@@ -1,6 +1,6 @@
 import importlib.util
-from pathlib import Path
 import sys
+from pathlib import Path
 
 HELPERS_PATH = (
     Path(__file__).parents[1] / "custom_components" / "eta_touch" / "helpers.py"

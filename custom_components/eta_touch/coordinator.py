@@ -2,11 +2,17 @@
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from datetime import timedelta
-import logging
 
-from etatouch_restful import EtaError, EtaTouchClient, EtaTouchConnectionError, EtaValue
+from etatouch_restful import (
+    EtaError,
+    EtaTouchClient,
+    EtaTouchConnectionError,
+    EtaTouchResponseError,
+    EtaValue,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
@@ -55,7 +61,7 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
             for variable in self.variables:
                 values[variable.uri] = await self.client.get_variable(variable.uri)
             errors = tuple(await self.client.get_errors())
-        except EtaTouchConnectionError as err:
+        except (EtaTouchConnectionError, EtaTouchResponseError) as err:
             raise UpdateFailed(f"Could not update ETA Touch data: {err}") from err
         return EtaTouchData(values=values, errors=errors)
 
