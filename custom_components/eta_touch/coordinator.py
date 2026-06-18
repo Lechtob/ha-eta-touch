@@ -30,7 +30,41 @@ from .const import (
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
 )
-from .helpers import EtaConfiguredVariable, parse_variable_lines
+from .helpers import EtaConfiguredVariable, format_discovered_variable_name, parse_variable_lines
+
+DISCOVERY_ALLOWED_UNITS = frozenset(
+    {
+        "°C",
+        "%",
+        "bar",
+        "mbar",
+        "Pa",
+        "W",
+        "kW",
+        "V",
+        "A",
+        "mA",
+        "kg",
+        "kg/h",
+        "U/min",
+        "rpm",
+    }
+)
+DISCOVERY_EXCLUDED_NAME_PARTS = frozenset(
+    {
+        "Anforderung",
+        "Drehzahlsteuerung",
+        "Eingang",
+        "Freigabe",
+        "Lag ",
+        "Luftfeuchteanzeige",
+        "Meldungen",
+        "Warnung",
+        "Ventilzustand",
+        "Zustand",
+        "max.",
+    }
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -85,17 +119,30 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
     async def _async_discover_variables(self) -> tuple[EtaConfiguredVariable, ...]:
         """Discover a bounded default set of ETA variables from the menu tree."""
 
-        candidates = (
-            variable
-            for variable in flatten_menu(await self.client.get_menu())
-            if is_default_discovery_candidate(variable)
-        )
-        discovered = tuple(
-            EtaConfiguredVariable(name=variable.full_name, uri=variable.uri)
-            for variable in candidates
-        )[: self.max_discovered_variables]
-        _LOGGER.info("Discovered %s ETA Touch variables", len(discovered))
-        return discovered
+        discovered: list[EtaConfiguredVariable] = []
+        seen_uris: set[str] = set()
+        for variable in flatten_menu(await self.client.get_menu()):
+            if variable.uri in seen_uris:
+                continue
+            if not is_default_discovery_candidate(variable):
+                continue
+            if any(part in variable.full_name for part in DISCOVERY_EXCLUDED_NAME_PARTS):
+                continue
+            value = await self.client.get_variable(variable.uri)
+            if value.unit not in DISCOVERY_ALLOWED_UNITS:
+                continue
+            seen_uris.add(variable.uri)
+            discovered.append(
+                EtaConfiguredVariable(
+                    name=format_discovered_variable_name(variable.path),
+                    uri=variable.uri,
+                )
+            )
+            if len(discovered) >= self.max_discovered_variables:
+                break
+        discovered_variables = tuple(discovered)
+        _LOGGER.info("Discovered %s ETA Touch variables", len(discovered_variables))
+        return discovered_variables
 
     def variable_by_uri(self, uri: str) -> EtaConfiguredVariable:
         """Return the configured variable for an URI."""
