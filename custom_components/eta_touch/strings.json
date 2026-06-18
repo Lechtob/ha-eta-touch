@@ -10,10 +10,12 @@
           "host": "Host",
           "port": "Port",
           "scan_interval": "Abfrageintervall",
+          "auto_discovery": "Sensoren automatisch erkennen",
+          "max_discovered_variables": "Maximale automatisch erkannte Sensoren",
           "variables": "Sensorvariablen"
         },
         "data_description": {
-          "variables": "Eine Variable pro Zeile, optional als Name=112/10021/0/0/12112."
+          "variables": "Optional. Eine Variable pro Zeile als Name=112/10021/0/0/12112. Wenn leer, wird der ETA-Menuebaum automatisch erkannt."
         }
       }
     },
