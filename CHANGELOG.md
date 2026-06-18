@@ -10,3 +10,4 @@ All notable changes to the ETA Touch Home Assistant integration will be document
 - Binary sensor for active ETA errors.
 - `eta_touch.set_variable` service for writable ETA variables.
 - Manifest metadata aligned with the published `py-etatouch-restful==0.1.0` package.
+- Local HACS brand icon added.
