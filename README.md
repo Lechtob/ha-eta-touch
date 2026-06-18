@@ -17,7 +17,8 @@ The config flow asks for:
 - ETA Touch host/IP.
 - Port, usually `8080`.
 - Polling interval in seconds.
-- Sensor variables, one variable per line.
+- Automatic sensor discovery.
+- Optional manual sensor variables, one variable per line.
 
 Sensor lines can look like this:
 
@@ -26,7 +27,9 @@ Kesseltemperatur=112/10021/0/0/12150
 112/10021/0/0/12112
 ```
 
-URIs can be discovered from `/user/menu` and inspected with `/user/varinfo/<uri>`.
+If the manual sensor list is empty, the integration discovers a bounded set of sensor
+candidates from `/user/menu`. URIs can still be inspected manually with
+`/user/varinfo/<uri>`.
 
 ## Status
 
@@ -34,6 +37,7 @@ Implemented:
 
 - Config flow setup.
 - Sensors for configured ETA variables.
+- Automatic sensor discovery from the ETA menu tree.
 - Binary sensor for active ETA errors.
 - Service `eta_touch.set_variable` for writable ETA variables.
 
@@ -88,5 +92,5 @@ git push -u origin develop
 
 ## Dependency
 
-`custom_components/eta_touch/manifest.json` requires `py-etatouch-restful==0.1.0`,
-which is available on PyPI.
+`custom_components/eta_touch/manifest.json` requires `py-etatouch-restful==0.2.0`.
+Publish that package version before releasing this integration version through HACS.

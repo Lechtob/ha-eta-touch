@@ -2,6 +2,11 @@
 
 All notable changes to the ETA Touch Home Assistant integration will be documented here.
 
+## 0.2.0 - Unreleased
+
+- Add automatic sensor discovery from the ETA menu tree.
+- Bump `py-etatouch-restful` requirement to `0.2.0`.
+
 ## 0.1.0 - Unreleased
 
 - Initial HACS-compatible custom integration scaffold.
