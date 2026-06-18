@@ -11,7 +11,17 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT, CONF_SCAN_INTERVAL
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import CONF_VARIABLES, DEFAULT_NAME, DEFAULT_PORT, DEFAULT_SCAN_INTERVAL, DOMAIN
+from .const import (
+    CONF_AUTO_DISCOVERY,
+    CONF_MAX_DISCOVERED_VARIABLES,
+    CONF_VARIABLES,
+    DEFAULT_AUTO_DISCOVERY,
+    DEFAULT_MAX_DISCOVERED_VARIABLES,
+    DEFAULT_NAME,
+    DEFAULT_PORT,
+    DEFAULT_SCAN_INTERVAL,
+    DOMAIN,
+)
 from .helpers import parse_variable_lines
 
 _LOGGER = logging.getLogger(__name__)
@@ -58,6 +68,11 @@ class EtaTouchConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(CONF_HOST): str,
                     vol.Optional(CONF_PORT, default=DEFAULT_PORT): int,
                     vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
+                    vol.Optional(CONF_AUTO_DISCOVERY, default=DEFAULT_AUTO_DISCOVERY): bool,
+                    vol.Optional(
+                        CONF_MAX_DISCOVERED_VARIABLES,
+                        default=DEFAULT_MAX_DISCOVERED_VARIABLES,
+                    ): vol.All(vol.Coerce(int), vol.Range(min=1, max=200)),
                     vol.Optional(CONF_VARIABLES, default=""): str,
                 }
             ),
@@ -72,4 +87,3 @@ class EtaTouchConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             session=session,
         )
         await client.get_api_version()
-
