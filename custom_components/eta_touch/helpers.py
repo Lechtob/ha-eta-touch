@@ -6,6 +6,15 @@ import re
 from dataclasses import dataclass
 
 _VARIABLE_RE = re.compile(r"^\d+/\d+/\d+/\d+/\d+$")
+_DISCOVERY_NAME_OMIT_PARTS = frozenset(
+    {
+        "Ausgänge",
+        "Eingänge",
+        "Heizkreis",
+        "Raum",
+        "Raumfühler",
+    }
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -51,3 +60,15 @@ def validate_variable_uri(uri: str) -> str:
     if not _VARIABLE_RE.match(normalized):
         raise ValueError(f"Invalid ETA variable URI: {uri}")
     return normalized
+
+
+def format_discovered_variable_name(path: tuple[str, ...]) -> str:
+    """Format an ETA menu path into a compact Home Assistant entity name."""
+
+    parts = [part for part in path if part and part not in _DISCOVERY_NAME_OMIT_PARTS]
+    compact_parts: list[str] = []
+    for part in parts:
+        if compact_parts and compact_parts[-1] == part:
+            continue
+        compact_parts.append(part)
+    return " ".join(compact_parts)

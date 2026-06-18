@@ -2,6 +2,11 @@
 
 All notable changes to the ETA Touch Home Assistant integration will be documented here.
 
+## 0.2.1 - Unreleased
+
+- Improve automatic discovery names and filter out more technical values.
+- Replace brand icon with a PNG extracted from the official ETA logo SVG.
+
 ## 0.2.0 - Unreleased
 
 - Add automatic sensor discovery from the ETA menu tree.
