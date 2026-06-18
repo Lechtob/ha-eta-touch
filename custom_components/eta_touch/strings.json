@@ -1,0 +1,61 @@
+{
+  "title": "ETA Touch",
+  "config": {
+    "step": {
+      "user": {
+        "title": "ETA Touch verbinden",
+        "description": "Verbinde Home Assistant mit dem lokalen ETA Touch REST API.",
+        "data": {
+          "name": "Name",
+          "host": "Host",
+          "port": "Port",
+          "scan_interval": "Abfrageintervall",
+          "variables": "Sensorvariablen"
+        },
+        "data_description": {
+          "variables": "Eine Variable pro Zeile, optional als Name=112/10021/0/0/12112."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung fehlgeschlagen",
+      "invalid_response": "Unerwartete Antwort vom ETA Touch API",
+      "invalid_variables": "Die Variablenliste ist ungueltig",
+      "unknown": "Unerwarteter Fehler"
+    },
+    "abort": {
+      "already_configured": "Dieses ETA Touch Geraet ist bereits konfiguriert"
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "active_errors": {
+        "name": "Aktive Fehler"
+      }
+    }
+  },
+  "services": {
+    "set_variable": {
+      "name": "Variable setzen",
+      "description": "Setzt eine schreibbare ETA Touch Variable auf einen Rohwert.",
+      "fields": {
+        "uri": {
+          "name": "URI",
+          "description": "ETA Variablen-URI, zum Beispiel 112/10021/0/0/12112."
+        },
+        "value": {
+          "name": "Wert",
+          "description": "Rohwert, wie vom ETA API erwartet."
+        },
+        "begin": {
+          "name": "Beginn",
+          "description": "Viertelstunden seit Mitternacht fuer Zeitfenster."
+        },
+        "end": {
+          "name": "Ende",
+          "description": "Viertelstunden seit Mitternacht fuer Zeitfenster."
+        }
+      }
+    }
+  }
+}

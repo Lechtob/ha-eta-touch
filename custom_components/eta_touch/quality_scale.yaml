@@ -1,0 +1,11 @@
+rules:
+  config_flow: done
+  runtime_data: done
+  test-before-setup: todo
+  appropriate-polling: done
+  entity-unique-id: done
+  has-entity-name: done
+  devices: done
+  diagnostics: todo
+  strict-typing: todo
+

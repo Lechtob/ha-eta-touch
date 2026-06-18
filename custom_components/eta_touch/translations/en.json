@@ -1,0 +1,61 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect ETA Touch",
+        "description": "Connect Home Assistant to the local ETA Touch REST API.",
+        "data": {
+          "name": "Name",
+          "host": "Host",
+          "port": "Port",
+          "scan_interval": "Scan interval",
+          "variables": "Sensor variables"
+        },
+        "data_description": {
+          "variables": "One variable per line, optionally as Name=112/10021/0/0/12112."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect",
+      "invalid_response": "Unexpected response from the ETA Touch API",
+      "invalid_variables": "The variable list is invalid",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "This ETA Touch device is already configured"
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "active_errors": {
+        "name": "Active errors"
+      }
+    }
+  },
+  "services": {
+    "set_variable": {
+      "name": "Set variable",
+      "description": "Set a writable ETA Touch variable to a raw value.",
+      "fields": {
+        "uri": {
+          "name": "URI",
+          "description": "ETA variable URI, for example 112/10021/0/0/12112."
+        },
+        "value": {
+          "name": "Value",
+          "description": "Raw value expected by the ETA API."
+        },
+        "begin": {
+          "name": "Begin",
+          "description": "Quarter-hours since midnight for time slots."
+        },
+        "end": {
+          "name": "End",
+          "description": "Quarter-hours since midnight for time slots."
+        }
+      }
+    }
+  }
+}
+
