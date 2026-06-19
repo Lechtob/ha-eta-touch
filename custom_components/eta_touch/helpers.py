@@ -67,13 +67,22 @@ def validate_variable_uri(uri: str) -> str:
 def format_discovered_variable_name(path: tuple[str, ...]) -> str:
     """Format an ETA menu path into a compact Home Assistant entity name."""
 
-    parts = [part for part in path if part and part not in _DISCOVERY_NAME_OMIT_PARTS]
+    function_block = infer_function_block(path)
+    parts = [
+        part
+        for part in path
+        if part
+        and part != function_block
+        and part not in _DISCOVERY_NAME_OMIT_PARTS
+    ]
     compact_parts: list[str] = []
     for part in parts:
         if compact_parts and compact_parts[-1] == part:
             continue
         compact_parts.append(part)
-    return " ".join(compact_parts)
+    if compact_parts:
+        return " ".join(compact_parts)
+    return path[-1] if path else ""
 
 
 def infer_function_block(path: tuple[str, ...]) -> str | None:
