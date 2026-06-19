@@ -25,6 +25,7 @@ class EtaConfiguredVariable:
     uri: str
     function_block: str | None = None
     path: tuple[str, ...] = ()
+    is_diagnostic: bool = False
 
 
 def parse_variable_lines(value: str) -> tuple[EtaConfiguredVariable, ...]:
