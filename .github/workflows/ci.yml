@@ -5,9 +5,18 @@ on:
     branches: ["main", "develop"]
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  validate:
+  ci:
+    name: CI
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -21,4 +30,3 @@ jobs:
         run: python -m compileall custom_components tests
       - name: Unit tests
         run: pytest
-

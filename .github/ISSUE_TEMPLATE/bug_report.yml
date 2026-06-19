@@ -1,0 +1,80 @@
+name: Bug report
+description: Report a reproducible problem with the ETA Touch integration
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve ETA Touch. Remove passwords, public URLs, serial numbers, and other private data from logs and diagnostics.
+
+  - type: input
+    id: integration_version
+    attributes:
+      label: Integration version
+      description: The installed ETA Touch release, for example 0.4.0.
+      placeholder: 0.4.0
+    validations:
+      required: true
+
+  - type: input
+    id: home_assistant_version
+    attributes:
+      label: Home Assistant version
+      placeholder: 2026.6.0
+    validations:
+      required: true
+
+  - type: input
+    id: eta_system
+    attributes:
+      label: ETA system
+      description: Boiler model and ETA firmware version, if known.
+      placeholder: PU15, firmware x.x.x
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What happened, and what did you expect instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Install or update ETA Touch
+        2. Add the integration
+        3. Open ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Paste relevant Home Assistant log lines. Redact private information first.
+      render: text
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Include affected entity names, screenshots, or read-only ETA URIs when useful.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I use the latest released version of the integration.
+          required: true
+        - label: I searched existing issues for this problem.
+          required: true
+        - label: I removed private information from logs and screenshots.
+          required: true
+
