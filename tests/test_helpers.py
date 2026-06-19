@@ -40,12 +40,19 @@ def test_validate_variable_uri_normalizes_slashes() -> None:
 def test_format_discovered_variable_name_compacts_eta_paths() -> None:
     assert (
         format_discovered_variable_name(("EG", "Eingänge", "Raumfühler", "Raum Ist"))
-        == "EG Raum Ist"
+        == "Raum Ist"
     )
     assert (
         format_discovered_variable_name(("WW", "Warmwasserspeicher", "Warmwasserspeicher"))
-        == "WW Warmwasserspeicher"
+        == "Warmwasserspeicher"
     )
+    assert (
+        format_discovered_variable_name(
+            ("Kessel", "Kessel", "Vorlaufregler 1", "Angeforderte Temperatur")
+        )
+        == "Vorlaufregler 1 Angeforderte Temperatur"
+    )
+    assert format_discovered_variable_name(("Kessel",)) == "Kessel"
 
 
 def test_infer_and_normalize_function_block() -> None:
