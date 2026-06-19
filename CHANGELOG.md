@@ -2,6 +2,10 @@
 
 All notable changes to the ETA Touch Home Assistant integration will be documented here.
 
+## 0.2.4 - Unreleased
+
+- Use a curated default discovery list for MVP and diagnostic ETA variables.
+
 ## 0.2.3 - Unreleased
 
 - Remove functional block prefixes from discovered sensor names.
