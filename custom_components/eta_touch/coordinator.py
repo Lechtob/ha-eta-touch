@@ -30,7 +30,12 @@ from .const import (
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
 )
-from .helpers import EtaConfiguredVariable, format_discovered_variable_name, parse_variable_lines
+from .helpers import (
+    EtaConfiguredVariable,
+    format_discovered_variable_name,
+    infer_function_block,
+    parse_variable_lines,
+)
 
 DISCOVERY_ALLOWED_UNITS = frozenset(
     {
@@ -136,6 +141,8 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
                 EtaConfiguredVariable(
                     name=format_discovered_variable_name(variable.path),
                     uri=variable.uri,
+                    function_block=infer_function_block(variable.path),
+                    path=variable.path,
                 )
             )
             if len(discovered) >= self.max_discovered_variables:

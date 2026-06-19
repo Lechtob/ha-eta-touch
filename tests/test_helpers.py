@@ -15,6 +15,9 @@ spec.loader.exec_module(helpers)
 parse_variable_lines = helpers.parse_variable_lines
 validate_variable_uri = helpers.validate_variable_uri
 format_discovered_variable_name = helpers.format_discovered_variable_name
+infer_function_block = helpers.infer_function_block
+is_diagnostic_variable = helpers.is_diagnostic_variable
+normalize_function_block = helpers.normalize_function_block
 
 
 def test_parse_variable_lines_accepts_named_and_plain_variables() -> None:
@@ -43,3 +46,20 @@ def test_format_discovered_variable_name_compacts_eta_paths() -> None:
         format_discovered_variable_name(("WW", "Warmwasserspeicher", "Warmwasserspeicher"))
         == "WW Warmwasserspeicher"
     )
+
+
+def test_infer_and_normalize_function_block() -> None:
+    assert infer_function_block(("Kessel", "Zählerstände", "Gesamtverbrauch")) == "Kessel"
+    assert infer_function_block(()) is None
+    assert normalize_function_block(None) == "ETA Touch"
+
+
+def test_is_diagnostic_variable_detects_technical_values() -> None:
+    assert (
+        is_diagnostic_variable(
+            ("Kessel", "Zählerstände"),
+            "Gesamtverbrauch",
+        )
+        is True
+    )
+    assert is_diagnostic_variable(("EG", "Raumfühler"), "Raum Ist") is False
