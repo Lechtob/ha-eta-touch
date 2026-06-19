@@ -34,29 +34,5 @@
         "name": "Active errors"
       }
     }
-  },
-  "services": {
-    "set_variable": {
-      "name": "Set variable",
-      "description": "Set a writable ETA Touch variable to a raw value.",
-      "fields": {
-        "uri": {
-          "name": "URI",
-          "description": "ETA variable URI, for example 112/10021/0/0/12112."
-        },
-        "value": {
-          "name": "Value",
-          "description": "Raw value expected by the ETA API."
-        },
-        "begin": {
-          "name": "Begin",
-          "description": "Quarter-hours since midnight for time slots."
-        },
-        "end": {
-          "name": "End",
-          "description": "Quarter-hours since midnight for time slots."
-        }
-      }
-    }
   }
 }

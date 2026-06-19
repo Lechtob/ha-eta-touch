@@ -1,6 +1,6 @@
 # ETA Touch for Home Assistant
 
-HACS-compatible Home Assistant integration for ETA Touch heating systems.
+HACS-compatible, read-only Home Assistant integration for ETA Touch heating systems.
 
 ## Installation
 
@@ -27,9 +27,22 @@ Kesseltemperatur=112/10021/0/0/12150
 112/10021/0/0/12112
 ```
 
-If the manual sensor list is empty, the integration discovers a bounded set of sensor
-candidates from `/user/menu`. URIs can still be inspected manually with
-`/user/varinfo/<uri>`.
+If the manual sensor list is empty, the integration creates a curated overview inspired by
+meinETA. It groups the available values into Kessel, WW, FBH, HEIZK., EG, OG, Lager and Sys
+devices. Technical values and counters remain available as diagnostic entities.
+
+The default overview includes, where supported by the connected ETA configuration:
+
+- Boiler temperature, target, lower temperature, pressure, flue gas and pellet values.
+- Hot-water temperature and target.
+- Heating-circuit operating mode and calculated heating-curve temperature.
+- EG and OG current and target room temperatures.
+- Pellet storage and outside temperature.
+- Mixer, fan, air-slider, extraction and runtime diagnostics.
+
+Room and hot-water targets are intentionally read-only in this release. ETA write behavior
+depends on operating mode and firmware, so unverified controls are not exposed as entities or
+services. URIs can still be inspected manually with `/user/varinfo/<uri>`.
 
 ## Status
 
@@ -39,14 +52,15 @@ Implemented:
 - Sensors for configured ETA variables.
 - Automatic sensor discovery from the ETA menu tree.
 - Binary sensor for active ETA errors.
-- Service `eta_touch.set_variable` for writable ETA variables.
+- Read-only room and hot-water targets.
+- Diagnostic entities for technical values and counters.
 
-Next features should use `/user/varinfo` to classify entities automatically as sensors,
-binary sensors, selects or switches.
+Writable controls will return only after their effective read-back behavior has been verified
+across ETA operating modes.
 
 ## Local Smoke Test
 
-The Python dependency is published as `py-etatouch-restful==0.1.0`. A quick read-only
+The Python dependency is published as `py-etatouch-restful==0.2.0`. A quick read-only
 check against a local boiler:
 
 ```python
@@ -64,8 +78,7 @@ async def main() -> None:
 asyncio.run(main())
 ```
 
-For normal development use Home Assistant's config flow rather than calling write
-services manually.
+For normal development use Home Assistant's config flow.
 
 ## Repository Setup
 

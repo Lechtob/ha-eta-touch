@@ -34,29 +34,5 @@
         "name": "Aktive Fehler"
       }
     }
-  },
-  "services": {
-    "set_variable": {
-      "name": "Variable setzen",
-      "description": "Setzt eine schreibbare ETA Touch Variable auf einen Rohwert.",
-      "fields": {
-        "uri": {
-          "name": "URI",
-          "description": "ETA Variablen-URI, zum Beispiel 112/10021/0/0/12112."
-        },
-        "value": {
-          "name": "Wert",
-          "description": "Rohwert, wie vom ETA API erwartet."
-        },
-        "begin": {
-          "name": "Beginn",
-          "description": "Viertelstunden seit Mitternacht fuer Zeitfenster."
-        },
-        "end": {
-          "name": "Ende",
-          "description": "Viertelstunden seit Mitternacht fuer Zeitfenster."
-        }
-      }
-    }
   }
 }
