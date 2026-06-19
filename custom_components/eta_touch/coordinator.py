@@ -268,13 +268,15 @@ CURATED_DISCOVERY_VARIABLES = (
 
 
 CONTROL_KIND_NUMBER = "number"
+CONTROL_KIND_CLIMATE = "climate"
 CONTROL_KIND_SWITCH = "switch"
 
 PHASE_3_CONTROL_VARIABLES = (
     EtaControlVariable(
-        name="Raum Soll",
+        name="Raumtemperatur",
         function_block="EG",
-        value_kind=CONTROL_KIND_NUMBER,
+        value_kind=CONTROL_KIND_CLIMATE,
+        current_full_name="EG > Eingänge > Raumfühler > Raum Ist",
         read_full_name="EG > Eingänge > Raumfühler > Raum Soll",
         write_full_name="EG > Raum > Raum > Raum Soll > Solltemperatur setzen auf",
         unit="°C",
@@ -284,9 +286,10 @@ PHASE_3_CONTROL_VARIABLES = (
         native_step=0.5,
     ),
     EtaControlVariable(
-        name="Raum Soll",
+        name="Raumtemperatur",
         function_block="OG",
-        value_kind=CONTROL_KIND_NUMBER,
+        value_kind=CONTROL_KIND_CLIMATE,
+        current_full_name="OG > Eingänge > Raumfühler > Raum Ist",
         read_full_name="OG > Eingänge > Raumfühler > Raum Soll",
         write_full_name="OG > Raum > Raum > Raum Soll > Solltemperatur setzen auf",
         unit="°C",
@@ -370,6 +373,10 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
             for variable in self.variables:
                 values[variable.uri] = await self.client.get_variable(variable.uri)
             for variable in self.control_variables:
+                if variable.current_uri is not None:
+                    values[variable.current_uri] = await self.client.get_variable(
+                        variable.current_uri
+                    )
                 if variable.read_uri is not None:
                     values[variable.read_uri] = await self.client.get_variable(variable.read_uri)
             errors = tuple(await self.client.get_errors())
@@ -428,6 +435,11 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
         for definition in PHASE_3_CONTROL_VARIABLES:
             if definition.read_full_name is None or definition.write_full_name is None:
                 continue
+            current_variable = None
+            if definition.current_full_name is not None:
+                current_variable = variables_by_full_name.get(definition.current_full_name)
+                if current_variable is None:
+                    continue
             read_variable = variables_by_full_name.get(definition.read_full_name)
             write_variable = variables_by_full_name.get(definition.write_full_name)
             if read_variable is None or write_variable is None:
@@ -435,10 +447,12 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
             discovered.append(
                 EtaControlVariable(
                     name=definition.name,
+                    current_uri=current_variable.uri if current_variable is not None else None,
                     read_uri=read_variable.uri,
                     write_uri=write_variable.uri,
                     function_block=definition.function_block,
                     value_kind=definition.value_kind,
+                    current_full_name=definition.current_full_name,
                     read_full_name=definition.read_full_name,
                     write_full_name=definition.write_full_name,
                     unit=definition.unit,

@@ -35,8 +35,10 @@ class EtaControlVariable:
     name: str
     function_block: str
     value_kind: str
+    current_uri: str | None = None
     read_uri: str | None = None
     write_uri: str | None = None
+    current_full_name: str | None = None
     read_full_name: str | None = None
     write_full_name: str | None = None
     unit: str | None = None

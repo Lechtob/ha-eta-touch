@@ -2,6 +2,10 @@
 
 All notable changes to the ETA Touch Home Assistant integration will be documented here.
 
+## 0.4.0 - Unreleased
+
+- Expose room setpoints as climate entities instead of number entities.
+
 ## 0.3.1 - Unreleased
 
 - Read room setpoints from ETA display variables while writing to ETA setter variables.

@@ -18,6 +18,7 @@ from .helpers import validate_variable_uri
 
 PLATFORMS: list[Platform] = [
     Platform.BINARY_SENSOR,
+    Platform.CLIMATE,
     Platform.NUMBER,
     Platform.SENSOR,
     Platform.SWITCH,
