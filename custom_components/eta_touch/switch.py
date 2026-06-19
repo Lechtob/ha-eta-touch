@@ -40,12 +40,12 @@ class EtaTouchSwitch(
         variable: EtaControlVariable,
     ) -> None:
         super().__init__(coordinator)
-        if variable.uri is None:
-            raise ValueError("ETA Touch switch requires a discovered URI")
+        if variable.read_uri is None or variable.write_uri is None:
+            raise ValueError("ETA Touch switch requires discovered read and write URIs")
         self.variable = variable
         self._attr_name = variable.name
         self._attr_unique_id = (
-            f"{coordinator.entry.entry_id}_{variable.uri.replace('/', '_')}_switch"
+            f"{coordinator.entry.entry_id}_{variable.write_uri.replace('/', '_')}_switch"
         )
 
     @property
@@ -61,7 +61,7 @@ class EtaTouchSwitch(
     def is_on(self) -> bool | None:
         """Return whether the ETA switch is on."""
 
-        value = self.coordinator.data.values.get(self.variable.uri)
+        value = self.coordinator.data.values.get(self.variable.read_uri)
         if value is None:
             return None
         if str(value.raw) == str(self.variable.on_value):
@@ -73,11 +73,11 @@ class EtaTouchSwitch(
     async def async_turn_on(self, **kwargs: object) -> None:
         """Turn the ETA switch on."""
 
-        await self.coordinator.client.set_variable(self.variable.uri, self.variable.on_value)
+        await self.coordinator.client.set_variable(self.variable.write_uri, self.variable.on_value)
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs: object) -> None:
         """Turn the ETA switch off."""
 
-        await self.coordinator.client.set_variable(self.variable.uri, self.variable.off_value)
+        await self.coordinator.client.set_variable(self.variable.write_uri, self.variable.off_value)
         await self.coordinator.async_request_refresh()
