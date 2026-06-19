@@ -1,0 +1,44 @@
+name: Feature request
+description: Suggest an entity, supported ETA function, or integration improvement
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case
+      description: Describe the user problem or automation this feature would enable.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Explain how the feature should appear or behave in Home Assistant.
+    validations:
+      required: true
+
+  - type: input
+    id: eta_system
+    attributes:
+      label: ETA system
+      description: Boiler model and firmware version, if relevant.
+      placeholder: PU15, firmware x.x.x
+
+  - type: textarea
+    id: eta_reference
+    attributes:
+      label: ETA reference
+      description: Add read-only URI information, menu paths, or screenshots when available. Do not test writes without discussing them first.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues for a similar request.
+          required: true
+        - label: This request is specific to the Home Assistant integration. Protocol-only changes belong in py-etatouch-restful.
+          required: true
+
