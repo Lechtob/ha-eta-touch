@@ -28,6 +28,24 @@ class EtaConfiguredVariable:
     is_diagnostic: bool = False
 
 
+@dataclass(frozen=True, slots=True)
+class EtaControlVariable:
+    """A writable ETA variable exposed as a Home Assistant control."""
+
+    name: str
+    function_block: str
+    value_kind: str
+    uri: str | None = None
+    full_name: str | None = None
+    unit: str | None = None
+    scale_factor: float = 1.0
+    native_min_value: float | None = None
+    native_max_value: float | None = None
+    native_step: float | None = None
+    on_value: str | int | float | None = None
+    off_value: str | int | float | None = None
+
+
 def parse_variable_lines(value: str) -> tuple[EtaConfiguredVariable, ...]:
     """Parse one configured variable per line.
 
