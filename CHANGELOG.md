@@ -2,6 +2,10 @@
 
 All notable changes to the ETA Touch Home Assistant integration will be documented here.
 
+## 0.2.3 - Unreleased
+
+- Remove functional block prefixes from discovered sensor names.
+
 ## 0.2.2 - Unreleased
 
 - Group discovered sensors by ETA functional block devices.
