@@ -16,7 +16,12 @@ from .const import DOMAIN, SERVICE_SET_VARIABLE
 from .coordinator import EtaTouchDataUpdateCoordinator
 from .helpers import validate_variable_uri
 
-PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.SENSOR]
+PLATFORMS: list[Platform] = [
+    Platform.BINARY_SENSOR,
+    Platform.NUMBER,
+    Platform.SENSOR,
+    Platform.SWITCH,
+]
 ATTR_BEGIN = "begin"
 ATTR_END = "end"
 ATTR_URI = "uri"
