@@ -28,28 +28,6 @@ class EtaConfiguredVariable:
     is_diagnostic: bool = False
 
 
-@dataclass(frozen=True, slots=True)
-class EtaControlVariable:
-    """A writable ETA variable exposed as a Home Assistant control."""
-
-    name: str
-    function_block: str
-    value_kind: str
-    current_uri: str | None = None
-    read_uri: str | None = None
-    write_uri: str | None = None
-    current_full_name: str | None = None
-    read_full_name: str | None = None
-    write_full_name: str | None = None
-    unit: str | None = None
-    scale_factor: float = 1.0
-    native_min_value: float | None = None
-    native_max_value: float | None = None
-    native_step: float | None = None
-    on_value: str | int | float | None = None
-    off_value: str | int | float | None = None
-
-
 def parse_variable_lines(value: str) -> tuple[EtaConfiguredVariable, ...]:
     """Parse one configured variable per line.
 
@@ -135,3 +113,18 @@ def is_diagnostic_variable(path: tuple[str, ...], name: str) -> bool:
         "Zählerstände",
     }
     return any(part in full_name for part in diagnostic_parts)
+
+
+def format_sensor_value(
+    native_value: float | str,
+    str_value: str,
+    unit: str,
+) -> float | str:
+    """Prefer ETA display text for non-numeric values without a unit."""
+
+    if not unit:
+        try:
+            float(str_value.replace(",", "."))
+        except ValueError:
+            return str_value
+    return native_value
