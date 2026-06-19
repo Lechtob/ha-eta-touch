@@ -41,12 +41,12 @@ class EtaTouchNumber(
         variable: EtaControlVariable,
     ) -> None:
         super().__init__(coordinator)
-        if variable.uri is None:
-            raise ValueError("ETA Touch number requires a discovered URI")
+        if variable.read_uri is None or variable.write_uri is None:
+            raise ValueError("ETA Touch number requires discovered read and write URIs")
         self.variable = variable
         self._attr_name = variable.name
         self._attr_unique_id = (
-            f"{coordinator.entry.entry_id}_{variable.uri.replace('/', '_')}_number"
+            f"{coordinator.entry.entry_id}_{variable.write_uri.replace('/', '_')}_number"
         )
         self._attr_native_unit_of_measurement = variable.unit
         self._attr_native_min_value = variable.native_min_value
@@ -68,7 +68,7 @@ class EtaTouchNumber(
     def native_value(self) -> float | None:
         """Return the latest native value."""
 
-        value = self.coordinator.data.values.get(self.variable.uri)
+        value = self.coordinator.data.values.get(self.variable.read_uri)
         if value is None:
             return None
         native_value = value.native_value
@@ -78,5 +78,5 @@ class EtaTouchNumber(
         """Set the ETA variable to a new native value."""
 
         raw_value = round(value * self.variable.scale_factor)
-        await self.coordinator.client.set_variable(self.variable.uri, raw_value)
+        await self.coordinator.client.set_variable(self.variable.write_uri, raw_value)
         await self.coordinator.async_request_refresh()
