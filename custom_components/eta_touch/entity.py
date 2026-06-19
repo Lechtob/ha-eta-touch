@@ -7,6 +7,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
 from .coordinator import EtaTouchDataUpdateCoordinator
+from .helpers import normalize_function_block
 
 
 class EtaTouchEntity(CoordinatorEntity[EtaTouchDataUpdateCoordinator]):
@@ -26,3 +27,19 @@ class EtaTouchEntity(CoordinatorEntity[EtaTouchDataUpdateCoordinator]):
             configuration_url=self.coordinator.client.base_url,
         )
 
+
+def eta_touch_function_block_device_info(
+    coordinator: EtaTouchDataUpdateCoordinator,
+    function_block: str | None,
+) -> DeviceInfo:
+    """Return device info for a functional block below the ETA Touch controller."""
+
+    block = normalize_function_block(function_block)
+    return DeviceInfo(
+        identifiers={(DOMAIN, coordinator.entry.entry_id, block)},
+        name=f"ETA {block}",
+        manufacturer="ETA Heiztechnik",
+        model="ETA Touch functional block",
+        via_device=(DOMAIN, coordinator.entry.entry_id),
+        configuration_url=coordinator.client.base_url,
+    )

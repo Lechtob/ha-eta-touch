@@ -2,6 +2,11 @@
 
 All notable changes to the ETA Touch Home Assistant integration will be documented here.
 
+## 0.2.2 - Unreleased
+
+- Group discovered sensors by ETA functional block devices.
+- Mark technical discovered sensors as diagnostic entities.
+
 ## 0.2.1 - Unreleased
 
 - Improve automatic discovery names and filter out more technical values.

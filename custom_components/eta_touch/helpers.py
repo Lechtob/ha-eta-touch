@@ -23,6 +23,8 @@ class EtaConfiguredVariable:
 
     name: str
     uri: str
+    function_block: str | None = None
+    path: tuple[str, ...] = ()
 
 
 def parse_variable_lines(value: str) -> tuple[EtaConfiguredVariable, ...]:
@@ -72,3 +74,32 @@ def format_discovered_variable_name(path: tuple[str, ...]) -> str:
             continue
         compact_parts.append(part)
     return " ".join(compact_parts)
+
+
+def infer_function_block(path: tuple[str, ...]) -> str | None:
+    """Infer the ETA functional block from a menu path."""
+
+    return path[0] if path else None
+
+
+def normalize_function_block(function_block: str | None) -> str:
+    """Return a display-safe functional block name."""
+
+    return function_block or "ETA Touch"
+
+
+def is_diagnostic_variable(path: tuple[str, ...], name: str) -> bool:
+    """Return whether a discovered variable should be categorized as diagnostic."""
+
+    full_name = " > ".join((*path, name))
+    diagnostic_parts = {
+        "Abgasgebläse",
+        "Austragung",
+        "Luftschieber",
+        "Position",
+        "Restsauerstoff",
+        "Strom",
+        "Vorlaufmischer",
+        "Zählerstände",
+    }
+    return any(part in full_name for part in diagnostic_parts)
