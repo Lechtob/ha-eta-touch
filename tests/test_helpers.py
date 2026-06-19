@@ -18,6 +18,7 @@ format_discovered_variable_name = helpers.format_discovered_variable_name
 infer_function_block = helpers.infer_function_block
 is_diagnostic_variable = helpers.is_diagnostic_variable
 normalize_function_block = helpers.normalize_function_block
+format_sensor_value = helpers.format_sensor_value
 
 
 def test_parse_variable_lines_accepts_named_and_plain_variables() -> None:
@@ -70,3 +71,10 @@ def test_is_diagnostic_variable_detects_technical_values() -> None:
         is True
     )
     assert is_diagnostic_variable(("EG", "Raumfühler"), "Raum Ist") is False
+
+
+def test_format_sensor_value_preserves_eta_display_text() -> None:
+    assert format_sensor_value(2301.0, "Heizen", "") == "Heizen"
+    assert format_sensor_value(2100.0, "---", "") == "---"
+    assert format_sensor_value(18569.0, "18569", "") == 18569.0
+    assert format_sensor_value(22.0, "22,0", "°C") == 22.0

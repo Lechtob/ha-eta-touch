@@ -2,6 +2,15 @@
 
 All notable changes to the ETA Touch Home Assistant integration will be documented here.
 
+## 0.4.0 - Unreleased
+
+- Align automatic discovery with the compact meinETA overview.
+- Add boiler temperature, pressure, flue gas, storage and heating-curve values.
+- Keep technical measurements and counters as diagnostic entities.
+- Expose room and hot-water targets as read-only sensors.
+- Remove experimental write controls and the raw write service from the release surface.
+- Add Hassfest validation for HACS default repository readiness.
+
 ## 0.3.1 - Unreleased
 
 - Read room setpoints from ETA display variables while writing to ETA setter variables.

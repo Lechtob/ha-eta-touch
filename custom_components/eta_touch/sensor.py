@@ -12,7 +12,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .coordinator import EtaTouchDataUpdateCoordinator
 from .entity import EtaTouchEntity, eta_touch_function_block_device_info
-from .helpers import EtaConfiguredVariable, is_diagnostic_variable
+from .helpers import EtaConfiguredVariable, format_sensor_value, is_diagnostic_variable
 
 
 async def async_setup_entry(
@@ -33,8 +33,6 @@ class EtaTouchVariableSensor(
 ):
     """Sensor for a configured ETA variable."""
 
-    _attr_state_class = SensorStateClass.MEASUREMENT
-
     def __init__(
         self,
         coordinator: EtaTouchDataUpdateCoordinator,
@@ -44,6 +42,9 @@ class EtaTouchVariableSensor(
         self.variable = variable
         self._attr_name = variable.name
         self._attr_unique_id = f"{coordinator.entry.entry_id}_{variable.uri.replace('/', '_')}"
+        value = coordinator.data.values.get(variable.uri)
+        if value is not None and value.unit and isinstance(value.native_value, int | float):
+            self._attr_state_class = SensorStateClass.MEASUREMENT
         if variable.is_diagnostic or is_diagnostic_variable(variable.path, variable.name):
             self._attr_entity_category = EntityCategory.DIAGNOSTIC
 
@@ -61,7 +62,9 @@ class EtaTouchVariableSensor(
         """Return the latest native value."""
 
         value = self.coordinator.data.values.get(self.variable.uri)
-        return value.native_value if value is not None else None
+        if value is None:
+            return None
+        return format_sensor_value(value.native_value, value.str_value, value.unit)
 
     @property
     def native_unit_of_measurement(self) -> str | None:
