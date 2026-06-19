@@ -5,12 +5,14 @@ from __future__ import annotations
 from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .coordinator import EtaTouchDataUpdateCoordinator
-from .entity import EtaTouchEntity
-from .helpers import EtaConfiguredVariable
+from .entity import EtaTouchEntity, eta_touch_function_block_device_info
+from .helpers import EtaConfiguredVariable, is_diagnostic_variable
 
 
 async def async_setup_entry(
@@ -42,6 +44,17 @@ class EtaTouchVariableSensor(
         self.variable = variable
         self._attr_name = variable.name
         self._attr_unique_id = f"{coordinator.entry.entry_id}_{variable.uri.replace('/', '_')}"
+        if is_diagnostic_variable(variable.path, variable.name):
+            self._attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return device info for the ETA functional block."""
+
+        return eta_touch_function_block_device_info(
+            self.coordinator,
+            self.variable.function_block,
+        )
 
     @property
     def native_value(self) -> float | str | None:
@@ -74,4 +87,3 @@ class EtaTouchVariableSensor(
             "scale_factor": value.scale_factor,
             "advanced_text_offset": value.advanced_text_offset,
         }
-
