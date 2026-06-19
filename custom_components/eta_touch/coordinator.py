@@ -275,7 +275,8 @@ PHASE_3_CONTROL_VARIABLES = (
         name="Raum Soll",
         function_block="EG",
         value_kind=CONTROL_KIND_NUMBER,
-        full_name="EG > Raum > Raum > Raum Soll > Solltemperatur setzen auf",
+        read_full_name="EG > Eingänge > Raumfühler > Raum Soll",
+        write_full_name="EG > Raum > Raum > Raum Soll > Solltemperatur setzen auf",
         unit="°C",
         scale_factor=10.0,
         native_min_value=5.0,
@@ -286,7 +287,8 @@ PHASE_3_CONTROL_VARIABLES = (
         name="Raum Soll",
         function_block="OG",
         value_kind=CONTROL_KIND_NUMBER,
-        full_name="OG > Raum > Raum > Raum Soll > Solltemperatur setzen auf",
+        read_full_name="OG > Eingänge > Raumfühler > Raum Soll",
+        write_full_name="OG > Raum > Raum > Raum Soll > Solltemperatur setzen auf",
         unit="°C",
         scale_factor=10.0,
         native_min_value=5.0,
@@ -297,7 +299,8 @@ PHASE_3_CONTROL_VARIABLES = (
         name="Warmwasserspeicher Soll",
         function_block="WW",
         value_kind=CONTROL_KIND_NUMBER,
-        full_name="WW > Warmwasserspeicher > Warmwasserspeicher Soll",
+        read_full_name="WW > Warmwasserspeicher > Warmwasserspeicher Soll",
+        write_full_name="WW > Warmwasserspeicher > Warmwasserspeicher Soll",
         unit="°C",
         scale_factor=10.0,
         native_min_value=30.0,
@@ -308,7 +311,8 @@ PHASE_3_CONTROL_VARIABLES = (
         name="Solltemperatur für Sofortladen",
         function_block="WW",
         value_kind=CONTROL_KIND_NUMBER,
-        full_name="WW > Warmwasserspeicher > Solltemperatur für [Sofort laden]",
+        read_full_name="WW > Warmwasserspeicher > Solltemperatur für [Sofort laden]",
+        write_full_name="WW > Warmwasserspeicher > Solltemperatur für [Sofort laden]",
         unit="°C",
         scale_factor=10.0,
         native_min_value=30.0,
@@ -319,7 +323,8 @@ PHASE_3_CONTROL_VARIABLES = (
         name="Warmwasser sofort laden",
         function_block="WW",
         value_kind=CONTROL_KIND_SWITCH,
-        full_name="WW > Sonstiges > Warmwasser sofort laden",
+        read_full_name="WW > Sonstiges > Warmwasser sofort laden",
+        write_full_name="WW > Sonstiges > Warmwasser sofort laden",
         on_value="1803",
         off_value="1802",
     ),
@@ -365,8 +370,8 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
             for variable in self.variables:
                 values[variable.uri] = await self.client.get_variable(variable.uri)
             for variable in self.control_variables:
-                if variable.uri is not None:
-                    values[variable.uri] = await self.client.get_variable(variable.uri)
+                if variable.read_uri is not None:
+                    values[variable.read_uri] = await self.client.get_variable(variable.read_uri)
             errors = tuple(await self.client.get_errors())
         except (EtaTouchConnectionError, EtaTouchResponseError) as err:
             raise UpdateFailed(f"Could not update ETA Touch data: {err}") from err
@@ -421,18 +426,21 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
         variables_by_full_name = {variable.full_name: variable for variable in flattened_menu}
         discovered: list[EtaControlVariable] = []
         for definition in PHASE_3_CONTROL_VARIABLES:
-            if definition.full_name is None:
+            if definition.read_full_name is None or definition.write_full_name is None:
                 continue
-            variable = variables_by_full_name.get(definition.full_name)
-            if variable is None:
+            read_variable = variables_by_full_name.get(definition.read_full_name)
+            write_variable = variables_by_full_name.get(definition.write_full_name)
+            if read_variable is None or write_variable is None:
                 continue
             discovered.append(
                 EtaControlVariable(
                     name=definition.name,
-                    uri=variable.uri,
+                    read_uri=read_variable.uri,
+                    write_uri=write_variable.uri,
                     function_block=definition.function_block,
                     value_kind=definition.value_kind,
-                    full_name=definition.full_name,
+                    read_full_name=definition.read_full_name,
+                    write_full_name=definition.write_full_name,
                     unit=definition.unit,
                     scale_factor=definition.scale_factor,
                     native_min_value=definition.native_min_value,
