@@ -44,7 +44,7 @@ class EtaTouchVariableSensor(
         self.variable = variable
         self._attr_name = variable.name
         self._attr_unique_id = f"{coordinator.entry.entry_id}_{variable.uri.replace('/', '_')}"
-        if is_diagnostic_variable(variable.path, variable.name):
+        if variable.is_diagnostic or is_diagnostic_variable(variable.path, variable.name):
             self._attr_entity_category = EntityCategory.DIAGNOSTIC
 
     @property

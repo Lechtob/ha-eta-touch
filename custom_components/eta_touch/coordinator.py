@@ -82,6 +82,190 @@ class EtaTouchData:
     errors: tuple[EtaError, ...]
 
 
+@dataclass(frozen=True, slots=True)
+class EtaDiscoveryVariableDefinition:
+    """A curated ETA variable to discover by menu path."""
+
+    full_name: str
+    name: str
+    function_block: str
+    is_diagnostic: bool = False
+
+
+CURATED_DISCOVERY_VARIABLES = (
+    EtaDiscoveryVariableDefinition(
+        "EG > Eingänge > Raumfühler > Raum Ist",
+        "Raum Ist",
+        "EG",
+    ),
+    EtaDiscoveryVariableDefinition(
+        "OG > Eingänge > Raumfühler > Raum Ist",
+        "Raum Ist",
+        "OG",
+    ),
+    EtaDiscoveryVariableDefinition(
+        "FBH > Eingänge > Außentemperatur",
+        "Außentemperatur",
+        "FBH",
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Kessel > Kessel > Kessel Soll",
+        "Kessel Soll",
+        "Kessel",
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Kessel > Kessel unten",
+        "Kessel unten",
+        "Kessel",
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Kessel > Vorlaufregler 1 > Angeforderte Temperatur",
+        "Vorlaufregler 1 Angeforderte Temperatur",
+        "Kessel",
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Kessel > Vorlaufregler 1 > Angeforderte Leistung",
+        "Vorlaufregler 1 Angeforderte Leistung",
+        "Kessel",
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Kessel > Vorlaufregler 2 > Angeforderte Temperatur",
+        "Vorlaufregler 2 Angeforderte Temperatur",
+        "Kessel",
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Kessel > Vorlaufregler 2 > Angeforderte Leistung",
+        "Vorlaufregler 2 Angeforderte Leistung",
+        "Kessel",
+    ),
+    EtaDiscoveryVariableDefinition(
+        "WW > Warmwasserspeicher > Warmwasserspeicher",
+        "Warmwasserspeicher Temperatur",
+        "WW",
+    ),
+    EtaDiscoveryVariableDefinition(
+        "WW > Warmwasserspeicher > Registerleistung",
+        "Warmwasserspeicher Registerleistung",
+        "WW",
+    ),
+    EtaDiscoveryVariableDefinition(
+        "WW > Warmwasserspeicher > Vorlauf > Differenz",
+        "Warmwasserspeicher Vorlauf Differenz",
+        "WW",
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Zählerstände > Inhalt Pelletsbehälter",
+        "Pelletsbehälter Inhalt",
+        "Kessel",
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Zählerstände > Gesamtverbrauch",
+        "Pellets Gesamtverbrauch",
+        "Kessel",
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Zählerstände > Verbrauch seit Entaschung",
+        "Verbrauch seit Entaschung",
+        "Kessel",
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Zählerstände > Verbrauch seit Aschebox leeren",
+        "Verbrauch seit Aschebox leeren",
+        "Kessel",
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Ausgänge > Abgasgebläse > Abgasgebläse > Ist Drehzahl",
+        "Abgasgebläse Ist Drehzahl",
+        "Kessel",
+        True,
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Ausgänge > Luftschieber > Ist Stellung",
+        "Luftschieber Ist Stellung",
+        "Kessel",
+        True,
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Ausgänge > Vorlaufmischer 1 > Ist Temperatur",
+        "Vorlaufmischer 1 Ist Temperatur",
+        "Kessel",
+        True,
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Ausgänge > Vorlaufmischer 1 > Position",
+        "Vorlaufmischer 1 Position",
+        "Kessel",
+        True,
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Ausgänge > Vorlaufmischer 2 > Ist Temperatur",
+        "Vorlaufmischer 2 Ist Temperatur",
+        "Kessel",
+        True,
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Ausgänge > Vorlaufmischer 2 > Position",
+        "Vorlaufmischer 2 Position",
+        "Kessel",
+        True,
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Lager > Austragung > Austragleistung",
+        "Austragung Austragleistung",
+        "Lager",
+        True,
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Lager > Austragung > Laufzeit Austragschnecke",
+        "Laufzeit Austragschnecke",
+        "Lager",
+        True,
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Zählerstände > Volllaststunden",
+        "Volllaststunden",
+        "Kessel",
+        True,
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Zählerstände > Laufzeit Abgasgebläse",
+        "Laufzeit Abgasgebläse",
+        "Kessel",
+        True,
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Zählerstände > Zähler Heizbetriebe",
+        "Zähler Heizbetriebe",
+        "Kessel",
+        True,
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Zählerstände > Zähler Zündungen",
+        "Zähler Zündungen",
+        "Kessel",
+        True,
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Zählerstände > Laufzeit Stoker",
+        "Laufzeit Stoker",
+        "Kessel",
+        True,
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Zählerstände > Laufzeit Entaschung",
+        "Laufzeit Entaschung",
+        "Kessel",
+        True,
+    ),
+    EtaDiscoveryVariableDefinition(
+        "Kessel > Zählerstände > Laufzeit Saugturbine",
+        "Laufzeit Saugturbine",
+        "Kessel",
+        True,
+    ),
+)
+
+
 class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
     """Fetch data from ETA Touch."""
 
@@ -124,9 +308,16 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
     async def _async_discover_variables(self) -> tuple[EtaConfiguredVariable, ...]:
         """Discover a bounded default set of ETA variables from the menu tree."""
 
+        flattened_menu = flatten_menu(await self.client.get_menu())
+        curated_variables = self._discover_curated_variables(flattened_menu)
+        if curated_variables:
+            discovered_variables = curated_variables[: self.max_discovered_variables]
+            _LOGGER.info("Discovered %s curated ETA Touch variables", len(discovered_variables))
+            return discovered_variables
+
         discovered: list[EtaConfiguredVariable] = []
         seen_uris: set[str] = set()
-        for variable in flatten_menu(await self.client.get_menu()):
+        for variable in flattened_menu:
             if variable.uri in seen_uris:
                 continue
             if not is_default_discovery_candidate(variable):
@@ -143,6 +334,7 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
                     uri=variable.uri,
                     function_block=infer_function_block(variable.path),
                     path=variable.path,
+                    is_diagnostic=False,
                 )
             )
             if len(discovered) >= self.max_discovered_variables:
@@ -150,6 +342,31 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
         discovered_variables = tuple(discovered)
         _LOGGER.info("Discovered %s ETA Touch variables", len(discovered_variables))
         return discovered_variables
+
+    def _discover_curated_variables(
+        self,
+        flattened_menu,
+    ) -> tuple[EtaConfiguredVariable, ...]:
+        """Discover ETA variables from curated menu paths."""
+
+        variables_by_full_name = {variable.full_name: variable for variable in flattened_menu}
+        discovered: list[EtaConfiguredVariable] = []
+        seen_uris: set[str] = set()
+        for definition in CURATED_DISCOVERY_VARIABLES:
+            variable = variables_by_full_name.get(definition.full_name)
+            if variable is None or variable.uri in seen_uris:
+                continue
+            seen_uris.add(variable.uri)
+            discovered.append(
+                EtaConfiguredVariable(
+                    name=definition.name,
+                    uri=variable.uri,
+                    function_block=definition.function_block,
+                    path=variable.path,
+                    is_diagnostic=definition.is_diagnostic,
+                )
+            )
+        return tuple(discovered)
 
     def variable_by_uri(self, uri: str) -> EtaConfiguredVariable:
         """Return the configured variable for an URI."""
