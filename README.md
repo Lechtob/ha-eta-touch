@@ -30,8 +30,18 @@ Kesseltemperatur=112/10021/0/0/12150
 ```
 
 If the manual sensor list is empty, the integration creates a curated overview inspired by
-meinETA. It groups the available values into Kessel, WW, FBH, HEIZK., EG, OG, Lager and Sys
-devices. Technical values and counters remain available as diagnostic entities.
+meinETA. It uses the functional-block names from your controller, such as Kessel, WW,
+FBH, EG or your own room names. Technical values and counters remain diagnostic entities.
+
+Discovery runs once when the integration is loaded. Known measurements are matched by
+their menu path within a functional block, independently of the block name and address.
+Internal menu labels currently follow the German ETA menu. Known additional overview
+URIs are probed only when their block address exists and are added only if readable.
+Reload the integration after changing the controller's menu or adding functional blocks.
+
+An unavailable variable affects only its own sensor and is retried on the next update.
+Connection failures and controller-wide HTTP failures still mark the integration unavailable.
+Manually configured variables do not require a menu request.
 
 The default overview includes, where supported by the connected ETA configuration:
 

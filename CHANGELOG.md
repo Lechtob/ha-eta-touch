@@ -4,6 +4,11 @@ All notable changes to the ETA Touch Home Assistant integration will be document
 
 ## Unreleased
 
+- Discover known measurements under custom functional-block names and addresses;
+  probe hidden overview URIs only for existing blocks and require a successful read.
+- Cache discovery per load and skip menu requests for manually configured variables.
+- Isolate rejected variables, preserve their measurement units while unavailable,
+  recover automatically and log only availability transitions.
 - Add real Home Assistant config-flow, setup, registry migration and unload tests.
 - Stop using host/port as a stable config-entry ID; prevent duplicate endpoints and
   migrate existing entries without replacing their entry or entity IDs.

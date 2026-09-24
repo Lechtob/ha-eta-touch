@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import timedelta
 
@@ -381,6 +382,8 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
             CONF_MAX_DISCOVERED_VARIABLES,
             DEFAULT_MAX_DISCOVERED_VARIABLES,
         )
+        self._discovery_complete = bool(self.variables) or not self.auto_discovery
+        self._unavailable_variables: set[str] = set()
         self.client = EtaTouchClient(
             entry.data[CONF_HOST],
             port=entry.data.get(CONF_PORT, DEFAULT_PORT),
@@ -398,44 +401,97 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
 
     async def _async_update_data(self) -> EtaTouchData:
         try:
-            menu = await self.client.get_menu()
-            flattened_menu = flatten_menu(menu)
-            if not self.variables and self.auto_discovery:
-                self.variables = await self._async_discover_variables(menu, flattened_menu)
             values: dict[str, EtaValue] = {}
+            if not self._discovery_complete:
+                menu = await self.client.get_menu()
+                self.variables, values = await self._async_discover_variables(menu)
             for variable in self.variables:
-                values[variable.uri] = await self.client.get_variable(variable.uri)
+                if variable.uri not in values:
+                    value = await self._async_read_variable(variable.uri)
+                    if value is not None:
+                        values[variable.uri] = value
             errors = tuple(await self.client.get_errors())
         except (EtaTouchConnectionError, EtaTouchResponseError) as err:
             raise UpdateFailed(f"Could not update ETA Touch data: {err}") from err
+        self._discovery_complete = True
         return EtaTouchData(values=values, errors=errors)
+
+    async def _async_read_variable(self, uri: str, *, probe: bool = False) -> EtaValue | None:
+        """Isolate a rejected variable, but propagate controller-wide failures."""
+        try:
+            value = await self.client.get_variable(uri)
+        except EtaTouchResponseError as err:
+            if err.status in (401, 403, 429) or (err.status is not None and err.status >= 500):
+                raise
+            if not probe and uri not in self._unavailable_variables:
+                _LOGGER.warning("ETA variable %s is unavailable: %s", uri, err)
+                self._unavailable_variables.add(uri)
+            return None
+        if uri in self._unavailable_variables:
+            _LOGGER.info("ETA variable %s is available again", uri)
+            self._unavailable_variables.remove(uri)
+        return value
 
     async def _async_discover_variables(
         self,
-        menu: tuple[EtaMenuNode, ...],
-        flattened_menu,
-    ) -> tuple[EtaConfiguredVariable, ...]:
+        menu: Sequence[EtaMenuNode],
+    ) -> tuple[tuple[EtaConfiguredVariable, ...], dict[str, EtaValue]]:
         """Discover a bounded default set of ETA variables from the menu tree."""
 
-        curated_variables = self._discover_curated_variables(menu)
-        if curated_variables:
-            discovered_variables = curated_variables[: self.max_discovered_variables]
-            _LOGGER.info("Discovered %s curated ETA Touch variables", len(discovered_variables))
-            return discovered_variables
+        indexed = _index_menu_variables(menu)
+        discovered = list(self._discover_curated_variables(indexed))[
+            : self.max_discovered_variables
+        ]
+        seen_uris = {variable.uri for variable in discovered}
+        values: dict[str, EtaValue] = {}
 
-        discovered: list[EtaConfiguredVariable] = []
-        seen_uris: set[str] = set()
-        for variable in flattened_menu:
+        # Some supported overview values are hidden from the menu. Probe only exact
+        # known URIs whose functional-block address is advertised by this controller.
+        blocks = {node.uri.strip("/"): node.name for node in menu if node.uri}
+        for definition in CURATED_DISCOVERY_VARIABLES:
+            if len(discovered) >= self.max_discovered_variables:
+                break
+            uri = definition.uri
+            if uri is None or uri in indexed or uri in seen_uris:
+                continue
+            block = blocks.get("/".join(uri.split("/")[:2]))
+            if block is None:
+                continue
+            if any(
+                item.name == definition.name and item.function_block == block for item in discovered
+            ):
+                continue
+            seen_uris.add(uri)
+            value = await self._async_read_variable(uri, probe=True)
+            if value is None:
+                continue
+            discovered.append(
+                EtaConfiguredVariable(
+                    name=definition.name,
+                    uri=uri,
+                    function_block=block,
+                    path=(block, definition.name),
+                    is_diagnostic=definition.is_diagnostic,
+                )
+            )
+            values[uri] = value
+
+        if discovered:
+            _LOGGER.info("Discovered %s curated ETA Touch variables", len(discovered))
+            return tuple(discovered), values
+
+        for variable in flatten_menu(tuple(menu)):
             if variable.uri in seen_uris:
                 continue
             if not is_default_discovery_candidate(variable):
                 continue
             if any(part in variable.full_name for part in DISCOVERY_EXCLUDED_NAME_PARTS):
                 continue
-            value = await self.client.get_variable(variable.uri)
-            if value.unit not in DISCOVERY_ALLOWED_UNITS:
-                continue
             seen_uris.add(variable.uri)
+            value = await self._async_read_variable(variable.uri, probe=True)
+            if value is None or value.unit not in DISCOVERY_ALLOWED_UNITS:
+                continue
+            values[variable.uri] = value
             discovered.append(
                 EtaConfiguredVariable(
                     name=format_discovered_variable_name(variable.path),
@@ -449,40 +505,36 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
                 break
         discovered_variables = tuple(discovered)
         _LOGGER.info("Discovered %s ETA Touch variables", len(discovered_variables))
-        return discovered_variables
+        return discovered_variables, values
 
     def _discover_curated_variables(
         self,
-        menu: tuple[EtaMenuNode, ...],
+        indexed: dict[str, EtaMenuVariable],
     ) -> tuple[EtaConfiguredVariable, ...]:
         """Discover ETA variables from curated menu paths."""
 
-        variables_by_full_name = _index_menu_variables(menu)
         discovered: list[EtaConfiguredVariable] = []
         seen_uris: set[str] = set()
         for definition in CURATED_DISCOVERY_VARIABLES:
-            variable = (
-                variables_by_full_name.get(definition.full_name)
-                if definition.full_name is not None
-                else None
+            relative_path = (
+                tuple(definition.full_name.split(" > ")[1:]) if definition.full_name else None
             )
-            uri = variable.uri if variable is not None else definition.uri
-            if uri is None or uri in seen_uris:
-                continue
-            seen_uris.add(uri)
-            discovered.append(
-                EtaConfiguredVariable(
-                    name=definition.name,
-                    uri=uri,
-                    function_block=definition.function_block,
-                    path=(
-                        variable.path
-                        if variable is not None
-                        else (definition.function_block, definition.name)
-                    ),
-                    is_diagnostic=definition.is_diagnostic,
+            for variable in indexed.values():
+                if variable.uri in seen_uris or not (
+                    (relative_path is not None and variable.path[1:] == relative_path)
+                    or variable.uri == definition.uri
+                ):
+                    continue
+                seen_uris.add(variable.uri)
+                discovered.append(
+                    EtaConfiguredVariable(
+                        name=definition.name,
+                        uri=variable.uri,
+                        function_block=infer_function_block(variable.path),
+                        path=variable.path,
+                        is_diagnostic=definition.is_diagnostic,
+                    )
                 )
-            )
         return tuple(discovered)
 
     def variable_by_uri(self, uri: str) -> EtaConfiguredVariable:
@@ -492,7 +544,7 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
 
 
 def _index_menu_variables(
-    menu: tuple[EtaMenuNode, ...],
+    menu: Sequence[EtaMenuNode],
 ) -> dict[str, EtaMenuVariable]:
     """Index every readable menu node, including nodes with children."""
 
@@ -500,8 +552,9 @@ def _index_menu_variables(
 
     def visit(node: EtaMenuNode, parent_path: tuple[str, ...]) -> None:
         path = (*parent_path, node.name)
-        if node.uri:
-            variables[" > ".join(path)] = EtaMenuVariable(node.uri.strip("/"), path)
+        uri = node.uri.strip("/")
+        if len(uri.split("/")) == 5:
+            variables.setdefault(uri, EtaMenuVariable(uri, path))
         for child in node.children:
             visit(child, path)
 
