@@ -9,28 +9,56 @@ import voluptuous as vol
 from etatouch_restful import EtaTouchClient, EtaTouchConnectionError, EtaTouchResponseError
 from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT, CONF_SCAN_INTERVAL
+from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.selector import BooleanSelector, TextSelector, TextSelectorConfig
 
 from .const import (
     CONF_AUTO_DISCOVERY,
     CONF_MAX_DISCOVERED_VARIABLES,
     CONF_VARIABLES,
-    DEFAULT_AUTO_DISCOVERY,
-    DEFAULT_MAX_DISCOVERED_VARIABLES,
     DEFAULT_NAME,
     DEFAULT_PORT,
-    DEFAULT_SCAN_INTERVAL,
     DOMAIN,
+    OPTION_DEFAULTS,
 )
 from .helpers import parse_variable_lines
 
 _LOGGER = logging.getLogger(__name__)
 
 
+def _options_schema(defaults: dict[str, Any]) -> vol.Schema:
+    """Use the same settings and validation during setup and later changes."""
+    return vol.Schema(
+        {
+            vol.Required(CONF_SCAN_INTERVAL, default=defaults[CONF_SCAN_INTERVAL]): vol.All(
+                vol.Coerce(int), vol.Range(min=10, max=3600)
+            ),
+            vol.Required(
+                CONF_AUTO_DISCOVERY, default=defaults[CONF_AUTO_DISCOVERY]
+            ): BooleanSelector(),
+            vol.Required(
+                CONF_MAX_DISCOVERED_VARIABLES, default=defaults[CONF_MAX_DISCOVERED_VARIABLES]
+            ): vol.All(vol.Coerce(int), vol.Range(min=1, max=200)),
+            vol.Optional(
+                CONF_VARIABLES,
+                default="",
+                description={"suggested_value": defaults[CONF_VARIABLES]},
+            ): TextSelector(TextSelectorConfig(multiline=True)),
+        }
+    )
+
+
 class EtaTouchConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle an ETA Touch config flow."""
 
-    VERSION = 1
+    VERSION = 3
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> EtaTouchOptionsFlow:
+        """Return the settings flow for an existing controller."""
+        return EtaTouchOptionsFlow()
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -40,44 +68,110 @@ class EtaTouchConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            await self.async_set_unique_id(f"{user_input[CONF_HOST]}:{user_input[CONF_PORT]}")
-            self._abort_if_unique_id_configured()
+            user_input = dict(user_input)
+            user_input[CONF_HOST] = user_input[CONF_HOST].strip().lower().rstrip(".")
+            user_input.setdefault(CONF_PORT, DEFAULT_PORT)
+            if self._endpoint_configured(user_input):
+                return self.async_abort(reason="already_configured")
             try:
                 parse_variable_lines(user_input.get(CONF_VARIABLES, ""))
-                await self._validate_connection(user_input)
             except ValueError:
                 errors[CONF_VARIABLES] = "invalid_variables"
-            except EtaTouchConnectionError:
-                errors["base"] = "cannot_connect"
-            except EtaTouchResponseError:
-                errors["base"] = "invalid_response"
-            except Exception:
-                _LOGGER.exception("Unexpected error while connecting to ETA Touch")
-                errors["base"] = "unknown"
             else:
-                return self.async_create_entry(
-                    title=user_input.get(CONF_NAME) or DEFAULT_NAME,
-                    data=user_input,
-                )
+                if error := await self._connection_error(user_input):
+                    errors["base"] = error
+                else:
+                    return self.async_create_entry(
+                        title=user_input.get(CONF_NAME) or DEFAULT_NAME,
+                        data={
+                            CONF_HOST: user_input[CONF_HOST],
+                            CONF_PORT: user_input[CONF_PORT],
+                        },
+                        options={
+                            key: user_input.get(key, default)
+                            for key, default in OPTION_DEFAULTS.items()
+                        },
+                    )
 
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
                 {
                     vol.Optional(CONF_NAME, default=DEFAULT_NAME): str,
-                    vol.Required(CONF_HOST): str,
-                    vol.Optional(CONF_PORT, default=DEFAULT_PORT): int,
-                    vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
-                    vol.Optional(CONF_AUTO_DISCOVERY, default=DEFAULT_AUTO_DISCOVERY): bool,
-                    vol.Optional(
-                        CONF_MAX_DISCOVERED_VARIABLES,
-                        default=DEFAULT_MAX_DISCOVERED_VARIABLES,
-                    ): vol.All(vol.Coerce(int), vol.Range(min=1, max=200)),
-                    vol.Optional(CONF_VARIABLES, default=""): str,
+                    vol.Required(CONF_HOST): vol.All(str, vol.Strip, vol.Length(min=1)),
+                    vol.Optional(CONF_PORT, default=DEFAULT_PORT): vol.All(
+                        vol.Coerce(int), vol.Range(min=1, max=65535)
+                    ),
+                    **_options_schema(OPTION_DEFAULTS).schema,
                 }
             ),
             errors=errors,
         )
+
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        """Change the endpoint of the existing controller without replacing its entry."""
+        entry = self._get_reconfigure_entry()
+        errors: dict[str, str] = {}
+        defaults = {
+            CONF_HOST: entry.data[CONF_HOST],
+            CONF_PORT: entry.data.get(CONF_PORT, DEFAULT_PORT),
+        }
+        if user_input is not None:
+            endpoint = {
+                CONF_HOST: user_input[CONF_HOST].strip().lower().rstrip("."),
+                CONF_PORT: user_input.get(CONF_PORT, defaults[CONF_PORT]),
+            }
+            defaults.update(endpoint)
+            if self._endpoint_configured(endpoint, ignore_entry_id=entry.entry_id):
+                errors["base"] = "already_configured"
+            elif error := await self._connection_error(endpoint):
+                errors["base"] = error
+            else:
+                return self.async_update_reload_and_abort(entry, data_updates=endpoint)
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_HOST, default=defaults[CONF_HOST]): vol.All(
+                        str, vol.Strip, vol.Length(min=1)
+                    ),
+                    vol.Required(CONF_PORT, default=defaults[CONF_PORT]): vol.All(
+                        vol.Coerce(int), vol.Range(min=1, max=65535)
+                    ),
+                }
+            ),
+            errors=errors,
+        )
+
+    def _endpoint_configured(
+        self, endpoint: dict[str, Any], *, ignore_entry_id: str | None = None
+    ) -> bool:
+        """Prevent duplicate endpoints, excluding the entry being reconfigured."""
+        for entry in self._async_current_entries():
+            if entry.entry_id == ignore_entry_id:
+                continue
+            if (
+                entry.data[CONF_HOST].strip().lower().rstrip(".") == endpoint[CONF_HOST]
+                and entry.data.get(CONF_PORT, DEFAULT_PORT) == endpoint[CONF_PORT]
+            ):
+                return True
+        return False
+
+    async def _connection_error(self, endpoint: dict[str, Any]) -> str | None:
+        """Validate an endpoint using the same errors in setup and reconfiguration."""
+        try:
+            await self._validate_connection(endpoint)
+        except EtaTouchConnectionError:
+            return "cannot_connect"
+        except EtaTouchResponseError:
+            return "invalid_response"
+        except Exception:
+            _LOGGER.exception("Unexpected error while connecting to ETA Touch")
+            return "unknown"
+        return None
 
     async def _validate_connection(self, user_input: dict[str, Any]) -> None:
         session = async_get_clientsession(self.hass)
@@ -87,3 +181,27 @@ class EtaTouchConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             session=session,
         )
         await client.get_api_version()
+
+
+class EtaTouchOptionsFlow(config_entries.OptionsFlowWithReload):
+    """Change local polling and discovery settings without contacting the boiler."""
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        """Validate settings, preserving unknown options for forward compatibility."""
+        defaults = {**OPTION_DEFAULTS, **self.config_entry.options}
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            defaults.update(user_input)
+            # The frontend may omit an optional text field after it is cleared.
+            defaults[CONF_VARIABLES] = user_input.get(CONF_VARIABLES, "")
+            try:
+                parse_variable_lines(defaults[CONF_VARIABLES])
+            except ValueError:
+                errors[CONF_VARIABLES] = "invalid_variables"
+            else:
+                return self.async_create_entry(data=defaults)
+        return self.async_show_form(
+            step_id="init", data_schema=_options_schema(defaults), errors=errors
+        )

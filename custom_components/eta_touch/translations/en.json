@@ -1,6 +1,18 @@
 {
   "config": {
     "step": {
+      "reconfigure": {
+        "title": "Change ETA Touch connection",
+        "description": "Enter the new address of the same ETA controller. Its identity cannot be verified automatically. Existing entities and sensor settings are retained.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        },
+        "data_description": {
+          "host": "Local hostname or IP address of the ETA controller, without http:// or a path.",
+          "port": "Port of the local REST interface, normally 8080."
+        }
+      },
       "user": {
         "title": "Connect ETA Touch",
         "description": "Connect Home Assistant to the local ETA Touch REST API.",
@@ -14,21 +26,174 @@
           "variables": "Sensor variables"
         },
         "data_description": {
-          "variables": "Optional. One variable per line as Name=112/10021/0/0/12112. If empty, the ETA menu tree is discovered automatically."
+          "name": "Display name for this integration entry.",
+          "host": "Local hostname or IP address of the ETA controller, without http:// or a path.",
+          "port": "Port of the local REST interface, normally 8080.",
+          "scan_interval": "Seconds between updates (10 to 3600). Default: 30.",
+          "auto_discovery": "Discover sensors automatically when the manual variable list is empty.",
+          "max_discovered_variables": "Limit of 1 to 200 discovered sensors. Default: 48. Does not limit a manual list.",
+          "variables": "Optional: one URI or Name=112/10021/0/0/12112 per line. A manual list replaces automatic discovery. Clear the list and enable discovery to return to automatic selection."
         }
       }
     },
     "error": {
+      "already_configured": "This address and port are already used by another ETA Touch entry",
       "cannot_connect": "Failed to connect",
       "invalid_response": "Unexpected response from the ETA Touch API",
       "invalid_variables": "The variable list is invalid",
       "unknown": "Unexpected error"
     },
     "abort": {
+      "reconfigure_successful": "The connection settings were updated",
       "already_configured": "This ETA Touch device is already configured"
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "ETA Touch options",
+        "description": "Saving reloads the integration. Deselected sensors remain as unavailable registry entries. No boiler settings are changed.",
+        "data": {
+          "scan_interval": "Scan interval",
+          "auto_discovery": "Discover sensors automatically",
+          "max_discovered_variables": "Maximum automatically discovered sensors",
+          "variables": "Sensor variables"
+        },
+        "data_description": {
+          "scan_interval": "Seconds between updates (10 to 3600). Default: 30.",
+          "auto_discovery": "Discover sensors automatically when the manual variable list is empty.",
+          "max_discovered_variables": "Limit of 1 to 200 discovered sensors. Default: 48. Does not limit a manual list.",
+          "variables": "Optional: one URI or Name=112/10021/0/0/12112 per line. A manual list replaces automatic discovery. Clear the list and enable discovery to return to automatic selection."
+        }
+      }
+    },
+    "error": {
+      "invalid_variables": "The variable list is invalid"
+    }
+  },
   "entity": {
+    "sensor": {
+      "boiler_temperature": {
+        "name": "Boiler temperature"
+      },
+      "boiler_pressure": {
+        "name": "Boiler pressure"
+      },
+      "flue_gas_temperature": {
+        "name": "Flue gas temperature"
+      },
+      "residual_oxygen": {
+        "name": "Residual oxygen"
+      },
+      "room_temperature": {
+        "name": "Room temperature"
+      },
+      "room_target_temperature": {
+        "name": "Room target temperature"
+      },
+      "operating_mode": {
+        "name": "Operating mode"
+      },
+      "outside_temperature": {
+        "name": "Outside temperature"
+      },
+      "flow_temperature": {
+        "name": "Flow temperature"
+      },
+      "heating_curve_temperature": {
+        "name": "Heating curve temperature"
+      },
+      "boiler_target_temperature": {
+        "name": "Boiler target temperature"
+      },
+      "boiler_lower_temperature": {
+        "name": "Lower boiler temperature"
+      },
+      "flow_controller_1_requested_temperature": {
+        "name": "Flow controller 1 requested temperature"
+      },
+      "flow_controller_1_requested_power": {
+        "name": "Flow controller 1 requested power"
+      },
+      "flow_controller_2_requested_temperature": {
+        "name": "Flow controller 2 requested temperature"
+      },
+      "flow_controller_2_requested_power": {
+        "name": "Flow controller 2 requested power"
+      },
+      "hot_water_temperature": {
+        "name": "Hot water temperature"
+      },
+      "hot_water_target_temperature": {
+        "name": "Hot water target temperature"
+      },
+      "coil_power": {
+        "name": "Coil power"
+      },
+      "flow_temperature_difference": {
+        "name": "Flow temperature difference"
+      },
+      "pellet_container_content": {
+        "name": "Pellet container content"
+      },
+      "total_pellet_consumption": {
+        "name": "Total pellet consumption"
+      },
+      "consumption_since_ash_removal": {
+        "name": "Consumption since ash removal"
+      },
+      "consumption_since_ash_box_emptied": {
+        "name": "Consumption since ash box emptied"
+      },
+      "flue_gas_fan_speed": {
+        "name": "Flue gas fan speed"
+      },
+      "air_damper_position": {
+        "name": "Air damper position"
+      },
+      "flow_mixer_1_temperature": {
+        "name": "Flow mixer 1 temperature"
+      },
+      "flow_mixer_1_position": {
+        "name": "Flow mixer 1 position"
+      },
+      "flow_mixer_2_temperature": {
+        "name": "Flow mixer 2 temperature"
+      },
+      "flow_mixer_2_position": {
+        "name": "Flow mixer 2 position"
+      },
+      "pellet_stock": {
+        "name": "Pellet stock"
+      },
+      "extraction_rate": {
+        "name": "Extraction rate"
+      },
+      "extraction_screw_runtime": {
+        "name": "Extraction screw runtime"
+      },
+      "full_load_runtime": {
+        "name": "Full-load runtime"
+      },
+      "flue_gas_fan_runtime": {
+        "name": "Flue gas fan runtime"
+      },
+      "heating_cycle_count": {
+        "name": "Heating cycle count"
+      },
+      "ignition_count": {
+        "name": "Ignition count"
+      },
+      "stoker_runtime": {
+        "name": "Stoker runtime"
+      },
+      "ash_removal_runtime": {
+        "name": "Ash removal runtime"
+      },
+      "suction_turbine_runtime": {
+        "name": "Suction turbine runtime"
+      }
+    },
     "binary_sensor": {
       "active_errors": {
         "name": "Active errors"

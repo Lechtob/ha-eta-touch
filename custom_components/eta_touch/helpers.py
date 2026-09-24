@@ -30,6 +30,7 @@ class EtaConfiguredVariable:
     function_block: str | None = None
     path: tuple[str, ...] = ()
     is_diagnostic: bool = False
+    translation_key: str | None = None
 
 
 def parse_variable_lines(value: str) -> tuple[EtaConfiguredVariable, ...]:

@@ -14,19 +14,39 @@ concurrency:
 
 jobs:
   ci:
-    name: CI
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: CI
+            requirements: requirements_test.txt
+          - name: CI (HA 2026.8.0)
+            requirements: requirements_test_min.txt
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: ${{ matrix.requirements }}
       - name: Install checks
-        run: python -m pip install ruff pytest
+        run: python -m pip install -r ${{ matrix.requirements }}
       - name: Lint
         run: ruff check .
       - name: Compile
         run: python -m compileall custom_components tests
-      - name: Unit tests
-        run: pytest
+      - name: Unit and Home Assistant integration tests
+        run: pytest --cov=custom_components.eta_touch --cov-branch --cov-report=term-missing --cov-report=json
+      - name: Require full config flow coverage
+        run: |
+          python - <<'PY'
+          import json
+          with open("coverage.json") as report:
+              coverage = json.load(report)
+          flow = coverage["files"]["custom_components/eta_touch/config_flow.py"]
+          assert not flow["missing_lines"], flow["missing_lines"]
+          assert not flow["missing_branches"], flow["missing_branches"]
+          PY

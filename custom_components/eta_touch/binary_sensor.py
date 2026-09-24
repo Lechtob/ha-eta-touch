@@ -11,6 +11,9 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .coordinator import EtaTouchDataUpdateCoordinator
 from .entity import EtaTouchEntity
 
+# The coordinator centralizes all reads for this read-only platform.
+PARALLEL_UPDATES = 0
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -30,7 +33,6 @@ class EtaTouchActiveErrorsBinarySensor(
 
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
     _attr_has_entity_name = True
-    _attr_name = "Active errors"
     _attr_translation_key = "active_errors"
 
     def __init__(self, coordinator: EtaTouchDataUpdateCoordinator) -> None:
