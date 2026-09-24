@@ -43,6 +43,25 @@ An unavailable variable affects only its own sensor and is retried on the next u
 Connection failures and controller-wide HTTP failures still mark the integration unavailable.
 Manually configured variables do not require a menu request.
 
+### Sensor statistics
+
+Temperature, pressure, power, voltage, current, mass and duration values use Home
+Assistant device classes where the ETA unit identifies them. The known warm-water
+supply difference uses the temperature-delta class, not absolute temperature.
+Percentages are not assumed to be humidity or battery levels; rotation speeds
+keep their original ETA units without being classified as linear speed.
+
+Discovered lifetime consumption, runtime and operation counters use `total`.
+Consumption since ash removal or emptying the ash box uses `total_increasing`
+so a reset starts a new counting cycle. Pellet stock and container contents remain
+`measurement`, not consumption totals. Counter classification requires a known
+relative menu path and its expected unit; a manual sensor name alone never enables it.
+Unitless textual status values have no numeric device or state class.
+
+Entity IDs and native units are unchanged. Home Assistant may convert displayed
+values according to user preferences. Existing historical measurements are not
+rewritten into consumption totals; the corrected classes apply to future statistics.
+
 The default overview includes, where supported by the connected ETA configuration:
 
 - Boiler temperature, target, lower temperature, pressure, flue gas and pellet values.
