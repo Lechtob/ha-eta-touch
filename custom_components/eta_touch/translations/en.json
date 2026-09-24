@@ -1,6 +1,14 @@
 {
   "config": {
     "step": {
+      "reconfigure": {
+        "title": "Change ETA Touch connection",
+        "description": "Enter the new address of the same ETA controller. Its identity cannot be verified automatically. Existing entities and sensor settings are retained.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
+      },
       "user": {
         "title": "Connect ETA Touch",
         "description": "Connect Home Assistant to the local ETA Touch REST API.",
@@ -19,12 +27,14 @@
       }
     },
     "error": {
+      "already_configured": "This address and port are already used by another ETA Touch entry",
       "cannot_connect": "Failed to connect",
       "invalid_response": "Unexpected response from the ETA Touch API",
       "invalid_variables": "The variable list is invalid",
       "unknown": "Unexpected error"
     },
     "abort": {
+      "reconfigure_successful": "The connection settings were updated",
       "already_configured": "This ETA Touch device is already configured"
     }
   },

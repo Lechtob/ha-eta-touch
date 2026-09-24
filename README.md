@@ -43,6 +43,20 @@ An unavailable variable affects only its own sensor and is retried on the next u
 Connection failures and controller-wide HTTP failures still mark the integration unavailable.
 Manually configured variables do not require a menu request.
 
+### Changing the controller address
+
+Open the existing ETA Touch entry menu under **Settings > Devices & services** and
+select **Reconfigure** to change its host or port. Use the new address of the same
+controller: the ETA REST API does not currently provide a verified stable device
+identity, so the integration cannot detect an accidental change to another boiler.
+
+The connection is checked before saving. An unreachable controller, invalid response
+or endpoint already used by another ETA entry leaves the existing configuration intact.
+After successful validation, Home Assistant reloads the existing entry. Its entry ID,
+entity IDs, custom names, sensor selection and polling settings are preserved. Newly
+discovered URIs may still add entities as on any reload. Reconfigure also works when
+the previous address is offline. No write commands are sent to the boiler.
+
 ### Diagnostics download
 
 On the integration page, open the ETA Touch entry menu and select **Download

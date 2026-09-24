@@ -43,26 +43,15 @@ class EtaTouchConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             user_input = dict(user_input)
             user_input[CONF_HOST] = user_input[CONF_HOST].strip().lower().rstrip(".")
             user_input.setdefault(CONF_PORT, DEFAULT_PORT)
-            for entry in self._async_current_entries():
-                if (
-                    entry.data[CONF_HOST].strip().lower().rstrip(".") == user_input[CONF_HOST]
-                    and entry.data.get(CONF_PORT, DEFAULT_PORT) == user_input[CONF_PORT]
-                ):
-                    return self.async_abort(reason="already_configured")
+            if self._endpoint_configured(user_input):
+                return self.async_abort(reason="already_configured")
             try:
                 parse_variable_lines(user_input.get(CONF_VARIABLES, ""))
             except ValueError:
                 errors[CONF_VARIABLES] = "invalid_variables"
             else:
-                try:
-                    await self._validate_connection(user_input)
-                except EtaTouchConnectionError:
-                    errors["base"] = "cannot_connect"
-                except EtaTouchResponseError:
-                    errors["base"] = "invalid_response"
-                except Exception:
-                    _LOGGER.exception("Unexpected error while connecting to ETA Touch")
-                    errors["base"] = "unknown"
+                if error := await self._connection_error(user_input):
+                    errors["base"] = error
                 else:
                     return self.async_create_entry(
                         title=user_input.get(CONF_NAME) or DEFAULT_NAME,
@@ -91,6 +80,71 @@ class EtaTouchConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ),
             errors=errors,
         )
+
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        """Change the endpoint of the existing controller without replacing its entry."""
+        entry = self._get_reconfigure_entry()
+        errors: dict[str, str] = {}
+        defaults = {
+            CONF_HOST: entry.data[CONF_HOST],
+            CONF_PORT: entry.data.get(CONF_PORT, DEFAULT_PORT),
+        }
+        if user_input is not None:
+            endpoint = {
+                CONF_HOST: user_input[CONF_HOST].strip().lower().rstrip("."),
+                CONF_PORT: user_input.get(CONF_PORT, defaults[CONF_PORT]),
+            }
+            defaults.update(endpoint)
+            if self._endpoint_configured(endpoint, ignore_entry_id=entry.entry_id):
+                errors["base"] = "already_configured"
+            elif error := await self._connection_error(endpoint):
+                errors["base"] = error
+            else:
+                return self.async_update_reload_and_abort(entry, data_updates=endpoint)
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_HOST, default=defaults[CONF_HOST]): vol.All(
+                        str, vol.Strip, vol.Length(min=1)
+                    ),
+                    vol.Required(CONF_PORT, default=defaults[CONF_PORT]): vol.All(
+                        vol.Coerce(int), vol.Range(min=1, max=65535)
+                    ),
+                }
+            ),
+            errors=errors,
+        )
+
+    def _endpoint_configured(
+        self, endpoint: dict[str, Any], *, ignore_entry_id: str | None = None
+    ) -> bool:
+        """Prevent duplicate endpoints, excluding the entry being reconfigured."""
+        for entry in self._async_current_entries():
+            if entry.entry_id == ignore_entry_id:
+                continue
+            if (
+                entry.data[CONF_HOST].strip().lower().rstrip(".") == endpoint[CONF_HOST]
+                and entry.data.get(CONF_PORT, DEFAULT_PORT) == endpoint[CONF_PORT]
+            ):
+                return True
+        return False
+
+    async def _connection_error(self, endpoint: dict[str, Any]) -> str | None:
+        """Validate an endpoint using the same errors in setup and reconfiguration."""
+        try:
+            await self._validate_connection(endpoint)
+        except EtaTouchConnectionError:
+            return "cannot_connect"
+        except EtaTouchResponseError:
+            return "invalid_response"
+        except Exception:
+            _LOGGER.exception("Unexpected error while connecting to ETA Touch")
+            return "unknown"
+        return None
 
     async def _validate_connection(self, user_input: dict[str, Any]) -> None:
         session = async_get_clientsession(self.hass)
