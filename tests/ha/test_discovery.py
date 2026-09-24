@@ -1,12 +1,15 @@
 """Discovery and partial failures exercised through real HA entity setup."""
 
 import logging
+from datetime import timedelta
 
 import pytest
 from etatouch_restful import EtaMenuNode, EtaTouchConnectionError, EtaTouchResponseError, EtaValue
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import STATE_UNAVAILABLE
 from homeassistant.helpers import entity_registry as er
+from homeassistant.util import dt as dt_util
+from pytest_homeassistant_custom_component.common import async_fire_time_changed
 
 from custom_components.eta_touch.const import DOMAIN
 
@@ -270,7 +273,7 @@ async def test_manual_variables_do_not_fetch_menu(hass, mock_client, config_entr
     mock_client.get_menu.assert_not_awaited()
 
 
-async def test_menu_failure_retries_discovery(hass, mock_client, config_entry):
+async def test_menu_failure_retries_discovery(hass, mock_client, config_entry, freezer):
     config_entry.add_to_hass(hass)
     hass.config_entries.async_update_entry(
         config_entry, data={**config_entry.data, "auto_discovery": True, "variables": ""}
@@ -280,7 +283,9 @@ async def test_menu_failure_retries_discovery(hass, mock_client, config_entry):
     assert config_entry.state is ConfigEntryState.SETUP_RETRY
     mock_client.get_menu.side_effect = None
     mock_client.get_menu.return_value = [menu_block("Room", GOOD_URI, ROOM_PATH)]
-    assert await hass.config_entries.async_setup(config_entry.entry_id)
+    freezer.tick(timedelta(seconds=60))
+    async_fire_time_changed(hass, dt_util.utcnow())
     await hass.async_block_till_done()
+    assert config_entry.state is ConfigEntryState.LOADED
     assert state_for(hass, config_entry, GOOD_URI).state == "42.5"
     assert mock_client.get_menu.await_count == 2
