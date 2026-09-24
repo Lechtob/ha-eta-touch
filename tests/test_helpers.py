@@ -2,6 +2,8 @@ import importlib.util
 import sys
 from pathlib import Path
 
+import pytest
+
 HELPERS_PATH = (
     Path(__file__).parents[1] / "custom_components" / "eta_touch" / "helpers.py"
 )
@@ -78,3 +80,50 @@ def test_format_sensor_value_preserves_eta_display_text() -> None:
     assert format_sensor_value(2100.0, "---", "") == "---"
     assert format_sensor_value(18569.0, "18569", "") == 18569.0
     assert format_sensor_value(22.0, "22,0", "°C") == 22.0
+
+
+@pytest.mark.parametrize(
+    ("display", "expected"),
+    [
+        pytest.param("18727h 42m", 67419720.0, id="full-load-hours"),
+        pytest.param("36921h 29m", 132917340.0, id="flue-gas-fan-runtime"),
+        pytest.param("7403h 52m", 26653920.0, id="stoker-runtime"),
+        pytest.param("309h 45m", 1115100.0, id="ash-removal-runtime"),
+        ("0h 0m", 0.0),
+        ("12h", 43200.0),
+        ("42m", 2520.0),
+        ("5m 20,5s", 320.5),
+        ("1h 2m 3.5s", 3723.5),
+        (" 30m  0,0s ", 1800.0),
+        ("0s", 0.0),
+    ],
+)
+def test_format_sensor_value_converts_duration_text(display, expected) -> None:
+    assert format_sensor_value(display, display, "s") == expected
+
+
+def test_format_sensor_value_preserves_numeric_duration_precision() -> None:
+    assert format_sensor_value(691427.0, "192h 3m", "s") == 691427.0
+    assert format_sensor_value(0.0, "---", "s") == 0.0
+
+
+@pytest.mark.parametrize(
+    "display", ["", "---", "unknown", "12h garbage", "1h 2h", "h m", "1m 2h"]
+)
+def test_format_sensor_value_rejects_invalid_duration(display) -> None:
+    assert format_sensor_value(display, display, "s") is None
+
+
+@pytest.mark.parametrize("unit", ["s", "h", "°C", "kg"])
+def test_format_sensor_value_never_returns_text_with_numeric_unit(unit) -> None:
+    assert format_sensor_value("---", "---", unit) is None
+
+
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), -float("inf")])
+def test_format_sensor_value_rejects_nonfinite_measurements(value) -> None:
+    assert format_sensor_value(value, str(value), "s") is None
+
+
+def test_format_sensor_value_only_parses_durations_in_seconds() -> None:
+    assert format_sensor_value("1h 2m", "1h 2m", "") == "1h 2m"
+    assert format_sensor_value("1h 2m", "1h 2m", "h") is None

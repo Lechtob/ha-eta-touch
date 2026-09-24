@@ -4,8 +4,12 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from math import isfinite
 
 _VARIABLE_RE = re.compile(r"^\d+/\d+/\d+/\d+/\d+$")
+_DURATION_RE = re.compile(
+    r"\s*(?:([0-9]+)h\s*)?(?:([0-9]+)m\s*)?(?:([0-9]+(?:[.,][0-9]+)?)s\s*)?"
+)
 _DISCOVERY_NAME_OMIT_PARTS = frozenset(
     {
         "Ausgänge",
@@ -119,12 +123,25 @@ def format_sensor_value(
     native_value: float | str,
     str_value: str,
     unit: str,
-) -> float | str:
-    """Prefer ETA display text for non-numeric values without a unit."""
+) -> float | str | None:
+    """Normalize measurements, including ETA duration text, for Home Assistant."""
 
-    if not unit:
-        try:
-            float(str_value.replace(",", "."))
-        except ValueError:
-            return str_value
+    if unit:
+        if isinstance(native_value, int | float):
+            return native_value if isfinite(native_value) else None
+        # The client can fall back to display text for scientific-notation raw values.
+        if unit == "s":
+            match = _DURATION_RE.fullmatch(native_value)
+            if match is not None and any(part is not None for part in match.groups()):
+                hours, minutes, seconds = (
+                    float((part or "0").replace(",", ".")) for part in match.groups()
+                )
+                duration = hours * 3600 + minutes * 60 + seconds
+                return duration if isfinite(duration) else None
+        return None
+
+    try:
+        float(str_value.replace(",", "."))
+    except ValueError:
+        return str_value
     return native_value
