@@ -4,6 +4,8 @@ All notable changes to the ETA Touch Home Assistant integration will be document
 
 ## Unreleased
 
+- Add a cached diagnostics download with variable addresses, numeric encoding,
+  availability and coordinator health, excluding endpoints and user-defined text.
 - Assign sensor device classes and distinguish measurements, lifetime totals and
   resettable maintenance counters. Keep numeric metadata during invalid readings.
 - Classify the warm-water supply difference as a temperature delta for correct

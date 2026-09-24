@@ -9,6 +9,6 @@ rules:
   entity-unique-id: done
   has-entity-name: done
   devices: done
-  diagnostics: todo
+  diagnostics: done
   strict-typing: todo
 
