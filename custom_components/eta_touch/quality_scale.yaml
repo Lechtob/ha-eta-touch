@@ -1,7 +1,10 @@
 rules:
-  config_flow: done
-  runtime_data: done
-  test-before-setup: todo
+  config-flow: done
+  config-flow-test-coverage: done
+  runtime-data: done
+  test-before-configure: done
+  test-before-setup: done
+  unique-config-entry: done
   appropriate-polling: done
   entity-unique-id: done
   has-entity-name: done

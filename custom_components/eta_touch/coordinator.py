@@ -371,6 +371,7 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
     """Fetch data from ETA Touch."""
 
     entry: ConfigEntry
+    controller_device_id: str
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.entry = entry
@@ -387,6 +388,7 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
         )
         super().__init__(
             hass,
+            config_entry=entry,
             logger=_LOGGER,
             name=DOMAIN,
             update_interval=timedelta(

@@ -24,15 +24,22 @@ Security vulnerabilities must be reported privately as described in `SECURITY.md
 
 ## Local Checks
 
-```powershell
-python -m pip install ruff pytest
+Use Python 3.14 on Linux (or WSL) for the complete Home Assistant test suite:
+
+```shell
+python -m pip install -r requirements_test.txt
 ruff check .
 python -m compileall custom_components tests
-pytest
+pytest --cov=custom_components.eta_touch --cov-branch --cov-report=term-missing
 ```
 
-For full Home Assistant integration tests, add `pytest-homeassistant-custom-component`
-and mock the `py-etatouch-restful` client.
+`tests/ha` runs the real Home Assistant flow manager, registry and entity setup using
+`pytest-homeassistant-custom-component`. Only the ETA client is mocked. CI requires
+100% line and branch coverage of `config_flow.py`. The pinned test framework currently
+tests Home Assistant 2026.9.3.
+
+On Windows, the framework-independent helper tests can still be run with
+`pytest tests/test_helpers.py`; the complete suite runs in GitHub Actions on Linux.
 
 Hardware checks must be read-only by default. Any write test needs an explicit test value,
 expected read-back behavior, and a restore plan before it is run.
