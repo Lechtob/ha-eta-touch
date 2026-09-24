@@ -6,6 +6,17 @@ Requires Home Assistant 2026.8.0 or newer.
 
 ## Installation
 
+### Prerequisites
+
+The ETA controller must expose its local ETAtouch REST interface and be reachable
+from the Home Assistant host. Enable that interface according to your controller's
+manual; the menu location and availability depend on the controller firmware.
+Use its local hostname or IP address, not a meinETA account or cloud URL.
+The integration uses HTTP, normally on port `8080`, without login credentials.
+Keep this interface on a trusted local network and do not expose it to the internet.
+
+### HACS setup
+
 1. Add `https://github.com/Lechtob/ha-eta-touch` as a HACS custom repository of type
    `Integration`.
 2. Install the integration through HACS.
@@ -14,13 +25,20 @@ Requires Home Assistant 2026.8.0 or newer.
 
 ## Configuration
 
-The config flow asks for:
+| Field | Default | Purpose and accepted values |
+| --- | --- | --- |
+| Name | `ETA Touch` | Display name for the integration entry. |
+| Host | Required | Local hostname or IP address, without a URL scheme or path. |
+| Port | `8080` | REST port, from `1` to `65535`. |
+| Polling interval | `30` | Seconds between updates, from `10` to `3600`. Shorter intervals increase controller traffic. |
+| Automatic discovery | Enabled | Discover measurements from the controller menu when no manual variables are supplied. |
+| Maximum discovered variables | `48` | Discovery limit, from `1` to `200`; does not limit an explicit manual list. |
+| Variables | Empty | Optional URI or `Name=URI`, one per line. A non-empty list replaces automatic discovery. |
 
-- ETA Touch host/IP.
-- Port, usually `8080`.
-- Polling interval in seconds.
-- Automatic sensor discovery.
-- Optional manual sensor variables, one variable per line.
+These fields are selected during initial setup. Currently only host and port can
+be changed afterward through **Reconfigure**; an options flow for polling and
+sensor selection is not implemented yet. Do not edit Home Assistant's storage files.
+Disabling discovery with an empty manual list leaves only the active-error sensor.
 
 Sensor lines can look like this:
 
@@ -113,6 +131,59 @@ Room and hot-water targets are intentionally read-only in this release. ETA writ
 depends on operating mode and firmware, so unverified controls are not exposed as entities or
 services. URIs can still be inspected manually with `/user/varinfo/<uri>`.
 
+## Supported devices and limitations
+
+The integration has been tested with an ETA PU15 and its ETAtouch REST interface.
+Other ETA models and firmware versions have not been verified. Sensor availability
+depends on the installed functional blocks and readable variables, not just the
+boiler model. Systems without the local REST interface are unsupported.
+
+The integration communicates directly over local HTTP/XML using the open-source
+[py-etatouch-restful library](https://github.com/Lechtob/py-etatouch-restful).
+It does not use meinETA, cloud credentials, or a browser session. The overview is
+inspired by meinETA, but does not promise identical data on every controller.
+
+Automatic discovery currently recognizes German internal menu paths. Renaming a
+functional block may change its device grouping, so review device/area assignments
+after such a change. Different hostnames pointing to the same controller cannot
+be reliably identified as duplicates; configure each controller only once.
+
+There are no ETA-specific actions, triggers, or conditions in this read-only release.
+You can use the sensor states with Home Assistant's standard automation triggers
+and conditions, for example to notify you about low pellet stock or an active fault.
+Connection loss makes entities unavailable; it does not mean that the boiler itself
+has reported a fault. An unavailable error sensor must not be interpreted as all-clear.
+
+## Troubleshooting
+
+- **Cannot connect:** Check the controller address, port, REST setting, and network
+  access from Home Assistant. A browser on another network is not a sufficient test.
+  After an address change, use **Reconfigure** on the existing integration entry.
+- **All entities unavailable:** Check connectivity and the integration's log entry.
+  Polling retries automatically; entities recover after a successful update.
+- **Only one sensor unavailable:** The variable may no longer be readable on this
+  firmware or in this configuration. Other readable variables continue updating.
+- **Missing sensors:** Check the manual list, discovery setting and discovery limit.
+  Reload after controller menu changes. A manual list replaces the discovered list.
+  Not every ETA parameter belongs to the curated overview.
+- **Unknown numeric value:** The controller returned a value that cannot safely be
+  interpreted as a number. Download diagnostics rather than substituting zero.
+
+For a bug report, include the Home Assistant and integration versions, boiler model,
+firmware version if known, affected URI, and a reviewed diagnostics download.
+Do not publish credentials, private network details or unreviewed controller dumps.
+
+## Removal
+
+1. Open **Settings > Devices & services > ETA Touch**.
+2. Delete the relevant integration entry from its menu. This stops polling and
+   removes the entry's devices and entities; it does not alter boiler settings.
+3. Remove or update dashboards and automations that referenced those entities.
+4. To uninstall the custom integration completely, remove it in HACS after deleting
+   all ETA Touch entries, then restart Home Assistant.
+
+Deleting an integration is not a request to purge recorded history or backups.
+
 ## Status
 
 Implemented:
@@ -139,7 +210,7 @@ from etatouch_restful import EtaTouchClient
 
 
 async def main() -> None:
-    async with EtaTouchClient("192.168.0.159") as client:
+    async with EtaTouchClient("eta.local") as client:
         print(await client.get_api_version())
         print(len(await client.get_errors()))
 
@@ -148,6 +219,12 @@ asyncio.run(main())
 ```
 
 For normal development use Home Assistant's config flow.
+
+## Core readiness
+
+This is still a HACS custom integration, not an accepted Home Assistant Core
+integration or an awarded quality-scale tier. See [the Core readiness checklist](docs/CORE_READINESS.md)
+for verified evidence, remaining work, and the intended upstream submission scope.
 
 ## Repository Setup
 

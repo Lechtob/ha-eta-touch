@@ -11,6 +11,9 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .coordinator import EtaTouchDataUpdateCoordinator
 from .entity import EtaTouchEntity
 
+# The coordinator centralizes all reads for this read-only platform.
+PARALLEL_UPDATES = 0
+
 
 async def async_setup_entry(
     hass: HomeAssistant,

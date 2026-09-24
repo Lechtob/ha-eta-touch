@@ -25,6 +25,9 @@ from .coordinator import EtaTouchDataUpdateCoordinator
 from .entity import EtaTouchEntity, eta_touch_function_block_device_info
 from .helpers import EtaConfiguredVariable, format_sensor_value, is_diagnostic_variable
 
+# The coordinator centralizes all reads for this read-only platform.
+PARALLEL_UPDATES = 0
+
 _DEVICE_CLASSES = {
     UnitOfTemperature.CELSIUS: SensorDeviceClass.TEMPERATURE,
     UnitOfTemperature.FAHRENHEIT: SensorDeviceClass.TEMPERATURE,
