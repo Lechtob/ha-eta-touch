@@ -35,9 +35,9 @@ Keep this interface on a trusted local network and do not expose it to the inter
 | Maximum discovered variables | `48` | Discovery limit, from `1` to `200`; does not limit an explicit manual list. |
 | Variables | Empty | Optional URI or `Name=URI`, one per line. A non-empty list replaces automatic discovery. |
 
-These fields are selected during initial setup. Currently only host and port can
-be changed afterward through **Reconfigure**; an options flow for polling and
-sensor selection is not implemented yet. Do not edit Home Assistant's storage files.
+These fields are selected during initial setup. Change polling and sensor selection
+afterward using **Configure** on the ETA Touch integration entry. Change host and
+port through **Reconfigure**. Do not edit Home Assistant's storage files.
 Disabling discovery with an empty manual list leaves only the active-error sensor.
 
 Sensor lines can look like this:
@@ -80,6 +80,34 @@ After successful validation, Home Assistant reloads the existing entry. Its entr
 entity IDs, custom names, sensor selection and polling settings are preserved. Newly
 discovered URIs may still add entities as on any reload. Reconfigure also works when
 the previous address is offline. No write commands are sent to the boiler.
+
+### Changing polling and sensor selection
+
+Open **Settings > Devices & services > ETA Touch** and select **Configure** on
+the relevant entry. You can change the polling interval, automatic discovery,
+discovery limit and manual variable list. The multiline list accepts the same
+`Name=URI` or plain URI format as initial setup. A non-empty list replaces discovery,
+even if automatic discovery is enabled. To return to automatic selection, clear
+the list and enable discovery. To hide individual discovered sensors without
+maintaining a manual list, disable those entities using Home Assistant's entity settings.
+
+Saving changed options reloads the integration and runs discovery again when enabled.
+Invalid variable syntax keeps the form open without saving or reloading. Settings
+can be saved while the controller is offline; setup retries when it becomes reachable.
+This configures Home Assistant only and does not change any settings on the boiler.
+
+Existing installations migrate automatically to configuration version 3: polling
+and sensor preferences move into options with their saved values intact. Existing
+options take precedence if both locations already contain a value. Entry IDs,
+entity IDs and user-assigned names are retained. There is no need to remove and
+re-add the integration. Older integration versions cannot load version-3 entries;
+make a Home Assistant backup before updating if you need a rollback path.
+
+Sensors removed from the selection stop being queried but remain in the entity
+registry as unavailable. Re-selecting the same URI reuses its entity ID and custom
+name. Their history is not deliberately purged. Devices are not automatically
+deleted when their last sensor is deselected. Switching between manual and automatic
+selection can change a sensor's function-block association.
 
 ### Diagnostics download
 

@@ -28,7 +28,14 @@ async def test_user_flow(hass, mock_client, name):
     assert result["data"]["host"] == "eta.test"
     assert result["data"]["port"] == 8080
     assert result["result"].unique_id is None
-    assert result["result"].version == 2
+    assert result["result"].version == 3
+    assert result["data"] == {"host": "eta.test", "port": 8080}
+    assert result["result"].options == {
+        "scan_interval": 30,
+        "auto_discovery": True,
+        "max_discovered_variables": 48,
+        "variables": "",
+    }
     mock_client.get_api_version.assert_awaited_once()
 
 

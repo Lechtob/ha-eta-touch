@@ -42,6 +42,7 @@ async def test_reconfigure_reloads_and_preserves_identity(
         for device in dr.async_entries_for_config_entry(device_registry, config_entry.entry_id)
     }
     original_data = dict(config_entry.data)
+    original_options = dict(config_entry.options)
     original_coordinator = config_entry.runtime_data
     original_title = config_entry.title
     original_unique_id = config_entry.unique_id
@@ -69,7 +70,8 @@ async def test_reconfigure_reloads_and_preserves_identity(
     assert config_entry.state is ConfigEntryState.LOADED
     assert config_entry.runtime_data is not original_coordinator
     assert config_entry.data == {**original_data, "host": normalized_host, "port": port}
-    assert config_entry.options == {"future_option": "preserved"}
+    assert config_entry.options == original_options
+    assert config_entry.options["future_option"] == "preserved"
     assert config_entry.title == original_title
     assert config_entry.unique_id == original_unique_id
     assert len(hass.config_entries.async_entries(DOMAIN)) == 1

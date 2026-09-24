@@ -17,10 +17,11 @@ rules:
     status: done
     comment: CI requires full config_flow.py line and branch coverage.
   config-flow:
-    status: todo
+    status: done
     comment: >-
-      UI setup and reconfigure work, but polling/discovery preferences still live in
-      entry.data. Move them into options with migration and add field descriptions.
+      UI setup and reconfigure validate the endpoint. Polling/discovery preferences
+      live in options with a reloadable options flow, version-3 migration and
+      translated field descriptions. Flow tests cover setup, options and reconfigure.
   dependency-transparency:
     status: done
     comment: README links the public py-etatouch-restful source and describes local HTTP/XML.

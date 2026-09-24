@@ -57,12 +57,12 @@ async def async_get_config_entry_diagnostics(
             "version": entry.version,
             "minor_version": entry.minor_version,
             "state": entry.state.value,
-            "scan_interval": entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
-            "auto_discovery": entry.data.get(CONF_AUTO_DISCOVERY, DEFAULT_AUTO_DISCOVERY),
-            "max_discovered_variables": entry.data.get(
+            "scan_interval": entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
+            "auto_discovery": entry.options.get(CONF_AUTO_DISCOVERY, DEFAULT_AUTO_DISCOVERY),
+            "max_discovered_variables": entry.options.get(
                 CONF_MAX_DISCOVERED_VARIABLES, DEFAULT_MAX_DISCOVERED_VARIABLES
             ),
-            "manual_variables": bool(entry.data.get(CONF_VARIABLES)),
+            "manual_variables": bool(entry.options.get(CONF_VARIABLES)),
         },
         "coordinator": None,
         "variables": [],

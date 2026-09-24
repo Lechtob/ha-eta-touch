@@ -7,6 +7,10 @@
         "data": {
           "host": "Host",
           "port": "Port"
+        },
+        "data_description": {
+          "host": "Local hostname or IP address of the ETA controller, without http:// or a path.",
+          "port": "Port of the local REST interface, normally 8080."
         }
       },
       "user": {
@@ -22,7 +26,13 @@
           "variables": "Sensor variables"
         },
         "data_description": {
-          "variables": "Optional. One variable per line as Name=112/10021/0/0/12112. If empty, the ETA menu tree is discovered automatically."
+          "name": "Display name for this integration entry.",
+          "host": "Local hostname or IP address of the ETA controller, without http:// or a path.",
+          "port": "Port of the local REST interface, normally 8080.",
+          "scan_interval": "Seconds between updates (10 to 3600). Default: 30.",
+          "auto_discovery": "Discover sensors automatically when the manual variable list is empty.",
+          "max_discovered_variables": "Limit of 1 to 200 discovered sensors. Default: 48. Does not limit a manual list.",
+          "variables": "Optional: one URI or Name=112/10021/0/0/12112 per line. A manual list replaces automatic discovery. Clear the list and enable discovery to return to automatic selection."
         }
       }
     },
@@ -36,6 +46,29 @@
     "abort": {
       "reconfigure_successful": "The connection settings were updated",
       "already_configured": "This ETA Touch device is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "ETA Touch options",
+        "description": "Saving reloads the integration. Deselected sensors remain as unavailable registry entries. No boiler settings are changed.",
+        "data": {
+          "scan_interval": "Scan interval",
+          "auto_discovery": "Discover sensors automatically",
+          "max_discovered_variables": "Maximum automatically discovered sensors",
+          "variables": "Sensor variables"
+        },
+        "data_description": {
+          "scan_interval": "Seconds between updates (10 to 3600). Default: 30.",
+          "auto_discovery": "Discover sensors automatically when the manual variable list is empty.",
+          "max_discovered_variables": "Limit of 1 to 200 discovered sensors. Default: 48. Does not limit a manual list.",
+          "variables": "Optional: one URI or Name=112/10021/0/0/12112 per line. A manual list replaces automatic discovery. Clear the list and enable discovery to return to automatic selection."
+        }
+      }
+    },
+    "error": {
+      "invalid_variables": "The variable list is invalid"
     }
   },
   "entity": {

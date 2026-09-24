@@ -9,6 +9,7 @@ with devices grouped by functional block. Keep HACS working while preparing it.
 | Area | Implementation and verification |
 | --- | --- |
 | UI setup, endpoint validation, duplicate detection | `config_flow.py`; `tests/ha/test_config_flow.py` and `test_reconfigure.py`; CI enforces complete flow line/branch coverage. |
+| Options and migration | `test_options_flow.py`, `test_options_migration.py`; connection data is separate from polling/discovery options, with automatic reload and migration from versions 1 and 2. |
 | Stable entry/entity identity through migration and reconfiguration | `__init__.py`, `entity.py`; `test_setup.py` and `test_reconfigure.py`. |
 | Centralized polling and lifecycle | `coordinator.py`, both read-only platforms with explicit `PARALLEL_UPDATES`; repeated unload/setup test verifies polling cancellation and registry identity. |
 | Discovery and partial failures | `test_discovery.py` covers menu paths, custom block names, rejected variables, transport failures and recovery. |
@@ -25,22 +26,15 @@ listed there do not imply that the entire tier is complete.
 
 ## Next changes, in order
 
-1. **Configuration versus options.** Keep connection details in `ConfigEntry.data`;
-   move polling interval, discovery, discovery limit and manual variables into
-   `ConfigEntry.options`. Add an options flow and translated field descriptions.
-   Migrate existing entries without losing settings or changing entity IDs. Test
-   old entries, invalid input, reload, reconfiguration and diagnostics. Preserve
-   the full config-flow coverage gate. Current UI setup works, but this Bronze
-   requirement is not yet fully met.
-2. **Dependency review.** Resolve the separate Python library's numeric parsing
+1. **Dependency review.** Resolve the separate Python library's numeric parsing
    and borrowed-session timeout changes through its own review/release process.
    Only pin a new version once published and tested with the integration. Keep all
    ETA transport and XML handling in the library, using Home Assistant's session.
-3. **Upstream documentation and brands.** Prepare the integration page for
+2. **Upstream documentation and brands.** Prepare the integration page for
    `home-assistant/home-assistant.io`, based on the README but using Core setup
    instructions. Verify `eta_touch` assets in `home-assistant/brands` and submit
    missing assets. Local HACS branding is not evidence of upstream acceptance.
-4. **Core-native port and validation.** Port to `homeassistant/components/eta_touch`
+3. **Core-native port and validation.** Port to `homeassistant/components/eta_touch`
    and `tests/components/eta_touch`, replace custom-component test fixtures with
    Core fixtures, and adapt the manifest and documentation URL for Core. Run the
    target Core revision's tests, lint, hassfest and typing checks. Re-audit every

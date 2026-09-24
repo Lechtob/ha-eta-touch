@@ -99,7 +99,7 @@ async def test_migrate_preserves_entry_identity(hass, config_entry, unique_id):
     hass.config_entries.async_update_entry(config_entry, version=1, unique_id=unique_id)
     entry_id = config_entry.entry_id
     assert await async_migrate_entry(hass, config_entry)
-    assert config_entry.version == 2
+    assert config_entry.version == 3
     assert config_entry.entry_id == entry_id
     assert config_entry.unique_id == (None if unique_id == "eta.test:8080" else unique_id)
     assert await async_migrate_entry(hass, config_entry)
@@ -107,9 +107,9 @@ async def test_migrate_preserves_entry_identity(hass, config_entry, unique_id):
 
 async def test_newer_entry_not_downgraded(hass, config_entry):
     config_entry.add_to_hass(hass)
-    hass.config_entries.async_update_entry(config_entry, version=3)
+    hass.config_entries.async_update_entry(config_entry, version=4)
     assert not await async_migrate_entry(hass, config_entry)
-    assert config_entry.version == 3
+    assert config_entry.version == 4
 
 
 async def test_legacy_device_keeps_registry_identity(hass, config_entry):

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from homeassistant.const import CONF_SCAN_INTERVAL
+
 DOMAIN = "eta_touch"
 
 CONF_VARIABLES = "variables"
@@ -12,6 +14,13 @@ DEFAULT_MAX_DISCOVERED_VARIABLES = 48
 DEFAULT_NAME = "ETA Touch"
 DEFAULT_PORT = 8080
 DEFAULT_SCAN_INTERVAL = 30
+
+OPTION_DEFAULTS = {
+    CONF_SCAN_INTERVAL: DEFAULT_SCAN_INTERVAL,
+    CONF_AUTO_DISCOVERY: DEFAULT_AUTO_DISCOVERY,
+    CONF_MAX_DISCOVERED_VARIABLES: DEFAULT_MAX_DISCOVERED_VARIABLES,
+    CONF_VARIABLES: "",
+}
 
 # Only curated measurements receive a translation key. User and device-provided
 # names from manual configuration and generic discovery remain untouched.
