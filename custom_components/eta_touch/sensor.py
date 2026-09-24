@@ -84,7 +84,10 @@ class EtaTouchVariableSensor(
     ) -> None:
         super().__init__(coordinator)
         self.variable = variable
-        self._attr_name = variable.name
+        if variable.translation_key is not None:
+            self._attr_translation_key = variable.translation_key
+        else:
+            self._attr_name = variable.name
         self._attr_unique_id = f"{coordinator.entry.entry_id}_{variable.uri.replace('/', '_')}"
         self._update_value_metadata()
         if variable.is_diagnostic or is_diagnostic_variable(variable.path, variable.name):

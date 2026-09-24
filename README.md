@@ -33,6 +33,12 @@ If the manual sensor list is empty, the integration creates a curated overview i
 meinETA. It uses the functional-block names from your controller, such as Kessel, WW,
 FBH, EG or your own room names. Technical values and counters remain diagnostic entities.
 
+Known sensor names and the active-error sensor use Home Assistant translations
+(English and German). Default names follow the Home Assistant backend language,
+not each user's frontend language. Functional-block names from the controller,
+generic discovered names and manually configured sensor names are not translated.
+Existing entity IDs and user-assigned names are retained.
+
 Discovery runs once when the integration is loaded. Known measurements are matched by
 their menu path within a functional block, independently of the block name and address.
 Internal menu labels currently follow the German ETA menu. Known additional overview

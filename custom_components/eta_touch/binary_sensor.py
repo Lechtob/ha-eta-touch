@@ -30,7 +30,6 @@ class EtaTouchActiveErrorsBinarySensor(
 
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
     _attr_has_entity_name = True
-    _attr_name = "Active errors"
     _attr_translation_key = "active_errors"
 
     def __init__(self, coordinator: EtaTouchDataUpdateCoordinator) -> None:
