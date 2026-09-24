@@ -202,3 +202,19 @@ async def test_maintenance_counter_reset(hass, mock_client, config_entry):
         state = hass.states.get(entity_id)
         assert float(state.state) == value
         assert state.attributes["state_class"] == "total_increasing"
+
+
+async def test_initially_missing_counter_gets_metadata_on_recovery(hass, mock_client, config_entry):
+    mock_client.get_variable.side_effect = EtaTouchResponseError("Missing", status=404)
+    entity_id, coordinator = await setup_sensor(
+        hass, mock_client, config_entry, "kg", ("Z\u00e4hlerst\u00e4nde", "Gesamtverbrauch")
+    )
+    assert hass.states.get(entity_id).state == STATE_UNAVAILABLE
+    mock_client.get_variable.side_effect = None
+    await coordinator.async_refresh()
+    await hass.async_block_till_done()
+    state = hass.states.get(entity_id)
+    assert float(state.state) == 25
+    assert state.attributes["device_class"] == "weight"
+    assert state.attributes["state_class"] == "total"
+    assert state.attributes["unit_of_measurement"] == "kg"
