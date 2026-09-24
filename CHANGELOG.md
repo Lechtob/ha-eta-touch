@@ -4,6 +4,10 @@ All notable changes to the ETA Touch Home Assistant integration will be document
 
 ## Unreleased
 
+- Assign sensor device classes and distinguish measurements, lifetime totals and
+  resettable maintenance counters. Keep numeric metadata during invalid readings.
+- Classify the warm-water supply difference as a temperature delta for correct
+  unit conversion; leave generic percentages, rotation speeds and status codes unclassified.
 - Discover known measurements under custom functional-block names and addresses;
   probe hidden overview URIs only for existing blocks and require a successful read.
 - Cache discovery per load and skip menu requests for manually configured variables.
