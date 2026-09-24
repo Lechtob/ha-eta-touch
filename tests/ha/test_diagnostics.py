@@ -81,7 +81,7 @@ async def test_download_redacts_sensitive_data_without_io(
     assert "private" not in encoded.lower()
     data = payload["data"]
     assert data["configuration"] == {
-        "version": 2,
+        "version": 3,
         "minor_version": 1,
         "state": "loaded",
         "scan_interval": 30,

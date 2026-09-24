@@ -377,9 +377,9 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.entry = entry
-        self.variables = parse_variable_lines(entry.data.get("variables", ""))
-        self.auto_discovery = entry.data.get(CONF_AUTO_DISCOVERY, DEFAULT_AUTO_DISCOVERY)
-        self.max_discovered_variables = entry.data.get(
+        self.variables = parse_variable_lines(entry.options.get("variables", ""))
+        self.auto_discovery = entry.options.get(CONF_AUTO_DISCOVERY, DEFAULT_AUTO_DISCOVERY)
+        self.max_discovered_variables = entry.options.get(
             CONF_MAX_DISCOVERED_VARIABLES,
             DEFAULT_MAX_DISCOVERED_VARIABLES,
         )
@@ -396,7 +396,7 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
             logger=_LOGGER,
             name=DOMAIN,
             update_interval=timedelta(
-                seconds=entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
+                seconds=entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
             ),
         )
 

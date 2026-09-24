@@ -37,6 +37,7 @@ def mock_client() -> Generator[AsyncMock]:
 
 @pytest.fixture
 def config_entry() -> MockConfigEntry:
+    """Start from a saved v2 installation to exercise migration during real setup."""
     return MockConfigEntry(
         domain="eta_touch",
         title="ETA Touch",

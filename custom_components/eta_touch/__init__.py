@@ -7,7 +7,7 @@ from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 
-from .const import DEFAULT_PORT, DOMAIN
+from .const import DEFAULT_PORT, DOMAIN, OPTION_DEFAULTS
 from .coordinator import EtaTouchDataUpdateCoordinator
 
 PLATFORMS: list[Platform] = [
@@ -46,7 +46,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: EtaTouchConfigEntry) ->
 
 async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Retain registry identities while upgrading legacy configuration."""
-    if entry.version > 2:
+    if entry.version > 3:
         return False
     if entry.version == 1:
         registry = dr.async_get(hass)
@@ -66,4 +66,10 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             version=2,
             unique_id=None if entry.unique_id == legacy_unique_id else entry.unique_id,
         )
+    if entry.version == 2:
+        data = dict(entry.data)
+        options = dict(entry.options)
+        for key, default in OPTION_DEFAULTS.items():
+            options.setdefault(key, data.pop(key, default))
+        hass.config_entries.async_update_entry(entry, data=data, options=options, version=3)
     return True
