@@ -1,0 +1,9 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/Lechtob/ha-eta-touch/security/advisories/new
+    about: Report security issues privately. Do not open a public issue.
+  - name: ETA REST library
+    url: https://github.com/Lechtob/py-etatouch-restful/issues
+    about: Report HTTP, XML parsing, and protocol issues in the Python library.
+

@@ -2,6 +2,13 @@
 
 All notable changes to the ETA Touch Home Assistant integration will be documented here.
 
+## 0.4.1 - 2026-09-24
+
+- Convert ETA runtime text such as `18727h 42m` to numeric seconds, fixing unavailable
+  full-load, flue-gas fan, stoker and ash-removal runtime sensors and recurring log errors.
+- Preserve numeric runtime precision and report unparseable measurements as unknown.
+- Use the normalized sensor value when determining the measurement state class.
+
 ## 0.4.0 - Unreleased
 
 - Align automatic discovery with the compact meinETA overview.
