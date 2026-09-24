@@ -60,10 +60,13 @@ async def test_interval_reload_preserves_identity_and_polls_at_new_interval(
         if entry.domain == "sensor"
     )
     registry.async_update_entity(sensor.entity_id, name="My boiler")
+    hass.config_entries.async_update_entry(
+        config_entry, options={**config_entry.options, "future_option": "preserved"}
+    )
     old_coordinator = config_entry.runtime_data
     original_data = dict(config_entry.data)
-    options = {**config_entry.options, "scan_interval": 120, "future_option": "preserved"}
-    await save(hass, config_entry, options)
+    options = {**config_entry.options, "scan_interval": 120}
+    await save(hass, config_entry, {key: options[key] for key in OPTION_DEFAULTS})
     coordinator = config_entry.runtime_data
     assert coordinator is not old_coordinator
     assert coordinator.update_interval == timedelta(seconds=120)
@@ -119,7 +122,7 @@ async def test_invalid_variables_recover_without_saving_or_io(hass, mock_client,
         ("scan_interval", "bad"),
         ("max_discovered_variables", 0),
         ("max_discovered_variables", 201),
-        ("auto_discovery", "yes"),
+        ("auto_discovery", "not-a-boolean"),
         ("variables", 42),
     ],
 )
@@ -206,6 +209,25 @@ async def test_deselect_and_reselect_keeps_registry_name_and_id(hass, mock_clien
     assert registry.async_get(sensor.entity_id).id == sensor.id
     assert registry.async_get(sensor.entity_id).name == "My temperature"
     assert hass.states.get(sensor.entity_id).state == "42.5"
+
+
+async def test_manual_list_overrides_discovery_and_its_limit(hass, mock_client, config_entry):
+    await setup(hass, config_entry)
+    mock_client.reset_mock()
+    await save(
+        hass,
+        config_entry,
+        {
+            **config_entry.options,
+            "auto_discovery": True,
+            "max_discovered_variables": 1,
+            "variables": f"Boiler={URI}\nOther={OTHER_URI}",
+        },
+    )
+    assert [item.uri for item in config_entry.runtime_data.variables] == [URI, OTHER_URI]
+    assert mock_client.get_variable.await_count == 2
+    assert [call.args[0] for call in mock_client.get_variable.await_args_list] == [URI, OTHER_URI]
+    mock_client.get_menu.assert_not_awaited()
 
 
 async def test_options_can_be_saved_while_controller_offline(hass, mock_client, config_entry):
