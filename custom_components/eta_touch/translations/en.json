@@ -39,6 +39,128 @@
     }
   },
   "entity": {
+    "sensor": {
+      "boiler_temperature": {
+        "name": "Boiler temperature"
+      },
+      "boiler_pressure": {
+        "name": "Boiler pressure"
+      },
+      "flue_gas_temperature": {
+        "name": "Flue gas temperature"
+      },
+      "residual_oxygen": {
+        "name": "Residual oxygen"
+      },
+      "room_temperature": {
+        "name": "Room temperature"
+      },
+      "room_target_temperature": {
+        "name": "Room target temperature"
+      },
+      "operating_mode": {
+        "name": "Operating mode"
+      },
+      "outside_temperature": {
+        "name": "Outside temperature"
+      },
+      "flow_temperature": {
+        "name": "Flow temperature"
+      },
+      "heating_curve_temperature": {
+        "name": "Heating curve temperature"
+      },
+      "boiler_target_temperature": {
+        "name": "Boiler target temperature"
+      },
+      "boiler_lower_temperature": {
+        "name": "Lower boiler temperature"
+      },
+      "flow_controller_1_requested_temperature": {
+        "name": "Flow controller 1 requested temperature"
+      },
+      "flow_controller_1_requested_power": {
+        "name": "Flow controller 1 requested power"
+      },
+      "flow_controller_2_requested_temperature": {
+        "name": "Flow controller 2 requested temperature"
+      },
+      "flow_controller_2_requested_power": {
+        "name": "Flow controller 2 requested power"
+      },
+      "hot_water_temperature": {
+        "name": "Hot water temperature"
+      },
+      "hot_water_target_temperature": {
+        "name": "Hot water target temperature"
+      },
+      "coil_power": {
+        "name": "Coil power"
+      },
+      "flow_temperature_difference": {
+        "name": "Flow temperature difference"
+      },
+      "pellet_container_content": {
+        "name": "Pellet container content"
+      },
+      "total_pellet_consumption": {
+        "name": "Total pellet consumption"
+      },
+      "consumption_since_ash_removal": {
+        "name": "Consumption since ash removal"
+      },
+      "consumption_since_ash_box_emptied": {
+        "name": "Consumption since ash box emptied"
+      },
+      "flue_gas_fan_speed": {
+        "name": "Flue gas fan speed"
+      },
+      "air_damper_position": {
+        "name": "Air damper position"
+      },
+      "flow_mixer_1_temperature": {
+        "name": "Flow mixer 1 temperature"
+      },
+      "flow_mixer_1_position": {
+        "name": "Flow mixer 1 position"
+      },
+      "flow_mixer_2_temperature": {
+        "name": "Flow mixer 2 temperature"
+      },
+      "flow_mixer_2_position": {
+        "name": "Flow mixer 2 position"
+      },
+      "pellet_stock": {
+        "name": "Pellet stock"
+      },
+      "extraction_rate": {
+        "name": "Extraction rate"
+      },
+      "extraction_screw_runtime": {
+        "name": "Extraction screw runtime"
+      },
+      "full_load_runtime": {
+        "name": "Full-load runtime"
+      },
+      "flue_gas_fan_runtime": {
+        "name": "Flue gas fan runtime"
+      },
+      "heating_cycle_count": {
+        "name": "Heating cycle count"
+      },
+      "ignition_count": {
+        "name": "Ignition count"
+      },
+      "stoker_runtime": {
+        "name": "Stoker runtime"
+      },
+      "ash_removal_runtime": {
+        "name": "Ash removal runtime"
+      },
+      "suction_turbine_runtime": {
+        "name": "Suction turbine runtime"
+      }
+    },
     "binary_sensor": {
       "active_errors": {
         "name": "Active errors"

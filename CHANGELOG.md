@@ -4,6 +4,8 @@ All notable changes to the ETA Touch Home Assistant integration will be document
 
 ## Unreleased
 
+- Translate curated sensor names and the active-error sensor in English and German
+  through HA translation keys, preserving entity IDs and user-defined names.
 - Add a reconfigure flow for host and port, validating the connection and preventing
   duplicate endpoints before updating and reloading the existing entry.
 - Add a cached diagnostics download with variable addresses, numeric encoding,

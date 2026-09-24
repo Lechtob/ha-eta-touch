@@ -31,6 +31,7 @@ from .const import (
     DEFAULT_PORT,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
+    SENSOR_TRANSLATION_KEYS,
 )
 from .helpers import (
     EtaConfiguredVariable,
@@ -472,6 +473,7 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
                     function_block=block,
                     path=(block, definition.name),
                     is_diagnostic=definition.is_diagnostic,
+                    translation_key=SENSOR_TRANSLATION_KEYS[definition.name],
                 )
             )
             values[uri] = value
@@ -533,6 +535,7 @@ class EtaTouchDataUpdateCoordinator(DataUpdateCoordinator[EtaTouchData]):
                         function_block=infer_function_block(variable.path),
                         path=variable.path,
                         is_diagnostic=definition.is_diagnostic,
+                        translation_key=SENSOR_TRANSLATION_KEYS[definition.name],
                     )
                 )
         return tuple(discovered)

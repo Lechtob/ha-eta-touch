@@ -8,6 +8,7 @@ rules:
   appropriate-polling: done
   entity-unique-id: done
   has-entity-name: done
+  entity-translations: done
   devices: done
   reconfiguration-flow: done
   diagnostics: done
