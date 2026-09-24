@@ -89,11 +89,11 @@ async def test_curated_and_binary_names(
 async def test_generic_device_name_is_not_translated(hass, mock_client, config_entry, language):
     hass.config.language = language
     config_entry.add_to_hass(hass)
-    entity_id = await setup_discovery(hass, mock_client, config_entry, ("My custom measurement",))
+    entity_id = await setup_discovery(hass, mock_client, config_entry, ("Meine Temperatur",))
     assert config_entry.runtime_data.variables[0].translation_key is None
     assert (
         hass.states.get(entity_id).attributes["friendly_name"]
-        == "ETA My room My custom measurement"
+        == "ETA My room Meine Temperatur"
     )
 
 
@@ -142,8 +142,8 @@ async def test_existing_registry_identity_is_retained(hass, mock_client, config_
         suggested_object_id="legacy_room",
         config_entry=config_entry,
         original_name="Raum",
-        name=custom_name,
     )
+    registry.async_update_entity(existing.entity_id, name=custom_name)
     entity_id = await setup_discovery(
         hass, mock_client, config_entry, ("Eing\u00e4nge", "Raumf\u00fchler", "Raum Ist")
     )
