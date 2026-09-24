@@ -38,6 +38,14 @@ pytest --cov=custom_components.eta_touch --cov-branch --cov-report=term-missing
 100% line and branch coverage of `config_flow.py`. The pinned test framework currently
 tests Home Assistant 2026.9.3.
 
+CI repeats the same suite and config-flow coverage gate for the minimum supported
+Home Assistant 2026.8.0 using `requirements_test_min.txt`. Install these requirement
+files in separate environments, not together. Keep the library pin synchronized
+with `manifest.json` in both files.
+
+Release candidates must complete the [release checklist](docs/RELEASE_CHECKLIST.md).
+Do not publish the final 1.0.0 based on mocked CI tests alone.
+
 On Windows, the framework-independent helper tests can still be run with
 `pytest tests/test_helpers.py`; the complete suite runs in GitHub Actions on Linux.
 

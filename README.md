@@ -4,6 +4,21 @@ HACS-compatible, read-only Home Assistant integration for ETA Touch heating syst
 
 Requires Home Assistant 2026.8.0 or newer.
 
+## Release candidate
+
+`1.0.0-rc.1` is a **pre-release** for the first stable, read-only monitoring release.
+The scope is sensors, an active-error binary sensor, functional-block grouping,
+diagnostics, discovery, and UI configuration/options. Climate entities, setpoint
+changes and other boiler write actions are not part of 1.0.
+
+Back up Home Assistant before updating from 0.4.1: saved configuration migrates to
+version 3, and restoring the older integration code alone does not undo that change.
+Retain the backup for rollback. Existing sensor IDs and custom names are preserved.
+
+To test the candidate, select the pre-release version in HACS when downloading the
+integration, restart Home Assistant, and follow the [release acceptance checklist](docs/RELEASE_CHECKLIST.md).
+The final 1.0.0 is gated on hardware acceptance; passing CI alone is not a field test.
+
 ## Installation
 
 ### Prerequisites
@@ -228,7 +243,7 @@ across ETA operating modes.
 
 ## Local Smoke Test
 
-The Python dependency is published as `py-etatouch-restful==0.2.0`. A quick read-only
+The Python dependency is published as `py-etatouch-restful==0.2.1`. A quick read-only
 check against a local boiler:
 
 ```python
@@ -279,5 +294,5 @@ git push -u origin develop
 
 ## Dependency
 
-`custom_components/eta_touch/manifest.json` requires `py-etatouch-restful==0.2.0`.
+`custom_components/eta_touch/manifest.json` requires `py-etatouch-restful==0.2.1`.
 Publish that package version before releasing this integration version through HACS.

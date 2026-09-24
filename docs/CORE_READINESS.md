@@ -26,23 +26,21 @@ listed there do not imply that the entire tier is complete.
 
 ## Next changes, in order
 
-1. **Dependency review.** Resolve the separate Python library's numeric parsing
-   and borrowed-session timeout changes through its own review/release process.
-   Only pin a new version once published and tested with the integration. Keep all
-   ETA transport and XML handling in the library, using Home Assistant's session.
-2. **Upstream documentation and brands.** Prepare the integration page for
+1. **Upstream documentation and brands.** Prepare the integration page for
    `home-assistant/home-assistant.io`, based on the README but using Core setup
    instructions. Verify `eta_touch` assets in `home-assistant/brands` and submit
    missing assets. Local HACS branding is not evidence of upstream acceptance.
-3. **Core-native port and validation.** Port to `homeassistant/components/eta_touch`
+2. **Core-native port and validation.** Port to `homeassistant/components/eta_touch`
    and `tests/components/eta_touch`, replace custom-component test fixtures with
    Core fixtures, and adapt the manifest and documentation URL for Core. Run the
    target Core revision's tests, lint, hassfest and typing checks. Re-audit every
    Bronze rule against that revision before opening the upstream integration PR.
 
-No release number, manifest quality tier, or dependency pin changes as part of
-this audit. Do not remove the HACS manifest version from this repository just
-because the eventual Core port has different requirements.
+The HACS release candidate uses py-etatouch-restful 0.2.1, including numeric parsing
+and borrowed-session timeout fixes. It does not claim an awarded quality tier.
+Do not remove the HACS manifest version from this repository just because the
+eventual Core port has different requirements. HACS release acceptance is tracked
+separately in [the release checklist](RELEASE_CHECKLIST.md).
 
 ## Remaining limitations, separate from the Bronze baseline
 

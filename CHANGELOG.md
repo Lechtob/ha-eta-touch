@@ -4,6 +4,24 @@ All notable changes to the ETA Touch Home Assistant integration will be document
 
 ## Unreleased
 
+## 1.0.0-rc.1 - 2026-09-24
+
+This is a pre-release for read-only monitoring, not the final 1.0.0 release.
+Requires Home Assistant 2026.8.0 or newer. Back up Home Assistant before upgrading:
+configuration entries migrate to version 3, which older integration versions cannot load.
+
+- Add an options dialog for polling interval, automatic discovery, discovery limit
+  and manual variables. Reload automatically after changed settings are saved.
+- Migrate saved polling/discovery settings to options without changing entry IDs,
+  entity IDs or user-defined names. Retain deselected entities for later reuse.
+- Update py-etatouch-restful to 0.2.1 for scientific/decimal numeric values and
+  request timeouts when using Home Assistant's shared HTTP session.
+- Test the full integration against HA 2026.8.0 and 2026.9.3.
+- Document the read-only 1.0 scope, known limitations and outstanding hardware
+  acceptance checks. No climate entities or boiler write controls are included.
+- Verify repeated unload/reload polling cleanup and active-error sensor recovery.
+- Mark diagnostics without a measurement snapshot as stale rather than current.
+
 - Translate curated sensor names and the active-error sensor in English and German
   through HA translation keys, preserving entity IDs and user-defined names.
 - Add a reconfigure flow for host and port, validating the connection and preventing
@@ -37,7 +55,7 @@ All notable changes to the ETA Touch Home Assistant integration will be document
 - Preserve numeric runtime precision and report unparseable measurements as unknown.
 - Use the normalized sensor value when determining the measurement state class.
 
-## 0.4.0 - Unreleased
+## 0.4.0 - 2026-06-19
 
 - Align automatic discovery with the compact meinETA overview.
 - Add boiler temperature, pressure, flue gas, storage and heating-curve values.
@@ -46,39 +64,39 @@ All notable changes to the ETA Touch Home Assistant integration will be document
 - Remove experimental write controls and the raw write service from the release surface.
 - Add Hassfest validation for HACS default repository readiness.
 
-## 0.3.1 - Unreleased
+## 0.3.1 - 2026-06-19
 
 - Read room setpoints from ETA display variables while writing to ETA setter variables.
 
-## 0.3.0 - Unreleased
+## 0.3.0 - 2026-06-19
 
 - Add Phase 3 controls for room and hot water setpoints.
 - Add a switch for hot water immediate loading.
 
-## 0.2.4 - Unreleased
+## 0.2.4 - 2026-06-19
 
 - Use a curated default discovery list for MVP and diagnostic ETA variables.
 
-## 0.2.3 - Unreleased
+## 0.2.3 - 2026-06-19
 
 - Remove functional block prefixes from discovered sensor names.
 
-## 0.2.2 - Unreleased
+## 0.2.2 - 2026-06-19
 
 - Group discovered sensors by ETA functional block devices.
 - Mark technical discovered sensors as diagnostic entities.
 
-## 0.2.1 - Unreleased
+## 0.2.1 - 2026-06-18
 
 - Improve automatic discovery names and filter out more technical values.
 - Replace brand icon with a PNG extracted from the official ETA logo SVG.
 
-## 0.2.0 - Unreleased
+## 0.2.0 - 2026-06-18
 
 - Add automatic sensor discovery from the ETA menu tree.
 - Bump `py-etatouch-restful` requirement to `0.2.0`.
 
-## 0.1.0 - Unreleased
+## 0.1.0 - 2026-06-18
 
 - Initial HACS-compatible custom integration scaffold.
 - Config flow for host, port, scan interval and configured ETA variables.

@@ -1,4 +1,4 @@
 # Home Assistant 2026.9.3; Python 3.14 on Linux.
 pytest-homeassistant-custom-component==0.13.366
-py-etatouch-restful==0.2.0
+py-etatouch-restful==0.2.1
 ruff==0.16.8
