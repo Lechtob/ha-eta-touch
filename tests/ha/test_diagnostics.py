@@ -2,6 +2,7 @@
 
 import json
 from http import HTTPStatus
+from unittest.mock import patch
 
 import pytest
 from etatouch_restful import (
@@ -15,6 +16,7 @@ from homeassistant.components.diagnostics import REDACTED
 from homeassistant.setup import async_setup_component
 
 from custom_components.eta_touch.diagnostics import async_get_config_entry_diagnostics
+from custom_components.eta_touch.helpers import EtaConfiguredVariable
 
 URI = "112/9001/0/0/2293"
 OTHER_URI = "112/9002/0/0/2293"
@@ -234,4 +236,32 @@ async def test_unloaded_snapshot_is_not_reported_as_current(hass, mock_client, c
     if data["coordinator"] is not None:
         assert data["coordinator"]["data_is_stale"]
     assert not any(item["available"] for item in data["variables"])
+    assert mock_client.mock_calls == []
+
+
+async def test_missing_snapshot_is_not_reported_as_current(hass, mock_client, config_entry):
+    coordinator = await setup_entry(hass, mock_client, config_entry)
+    mock_client.reset_mock()
+    with patch.object(coordinator, "data", None):
+        data = await async_get_config_entry_diagnostics(hass, config_entry)
+    assert not data["coordinator"]["has_snapshot"]
+    assert data["coordinator"]["data_is_stale"]
+    assert data["active_error_count"] is None
+    assert len(data["variables"]) == 2
+    for variable in data["variables"]:
+        assert not variable["available"]
+        assert not variable["has_cached_value"]
+        assert variable["value"] is None
+    assert mock_client.mock_calls == []
+
+
+async def test_untrusted_uri_is_redacted(hass, mock_client, config_entry):
+    coordinator = await setup_entry(hass, mock_client, config_entry)
+    mock_client.reset_mock()
+    with patch.object(
+        coordinator, "variables", [EtaConfiguredVariable("Private room", "private-uri")]
+    ):
+        data = await async_get_config_entry_diagnostics(hass, config_entry)
+    assert data["variables"][0]["uri"] == REDACTED
+    assert "private" not in json.dumps(data).lower()
     assert mock_client.mock_calls == []

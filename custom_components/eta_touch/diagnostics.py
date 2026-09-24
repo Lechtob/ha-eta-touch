@@ -73,7 +73,11 @@ async def async_get_config_entry_diagnostics(
         return result
 
     data = coordinator.data
-    current = entry.state is ConfigEntryState.LOADED and coordinator.last_update_success
+    current = (
+        data is not None
+        and entry.state is ConfigEntryState.LOADED
+        and coordinator.last_update_success
+    )
     result["coordinator"] = {
         "last_update_success": coordinator.last_update_success,
         "last_exception_type": (

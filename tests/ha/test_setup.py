@@ -5,8 +5,12 @@ from etatouch_restful import EtaTouchConnectionError
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
+from homeassistant.util import dt as dt_util
+from pytest_homeassistant_custom_component.common import async_fire_time_changed
 
 from custom_components.eta_touch import async_migrate_entry
+from custom_components.eta_touch import binary_sensor as binary_sensor_platform
+from custom_components.eta_touch import sensor as sensor_platform
 from custom_components.eta_touch.const import DOMAIN
 
 
@@ -34,6 +38,51 @@ async def test_setup_offline_retries(hass, mock_client, config_entry):
     assert not await hass.config_entries.async_setup(config_entry.entry_id)
     assert config_entry.state is ConfigEntryState.SETUP_RETRY
     assert not dr.async_entries_for_config_entry(dr.async_get(hass), config_entry.entry_id)
+
+
+@pytest.mark.parametrize("platform", [sensor_platform, binary_sensor_platform])
+def test_read_only_platform_updates_are_coordinated(platform):
+    assert platform.PARALLEL_UPDATES == 0
+
+
+async def test_unload_stops_polling_and_reload_has_one_poll(
+    hass, mock_client, config_entry, freezer
+):
+    config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(config_entry.entry_id)
+    await hass.async_block_till_done()
+    entity_ids = {
+        entity.entity_id
+        for entity in er.async_entries_for_config_entry(er.async_get(hass), config_entry.entry_id)
+    }
+    assert len(entity_ids) == 2
+
+    for _ in range(2):
+        mock_client.reset_mock()
+        freezer.tick(35)
+        async_fire_time_changed(hass, dt_util.utcnow())
+        await hass.async_block_till_done(wait_background_tasks=True)
+        mock_client.get_variable.assert_awaited_once()
+        mock_client.get_errors.assert_awaited_once()
+
+        assert await hass.config_entries.async_unload(config_entry.entry_id)
+        await hass.async_block_till_done()
+        assert all(hass.states.get(entity_id) is None for entity_id in entity_ids)
+        mock_client.reset_mock()
+        freezer.tick(120)
+        async_fire_time_changed(hass, dt_util.utcnow())
+        await hass.async_block_till_done(wait_background_tasks=True)
+        assert mock_client.mock_calls == []
+
+        assert await hass.config_entries.async_setup(config_entry.entry_id)
+        await hass.async_block_till_done()
+        assert all(hass.states.get(entity_id) is not None for entity_id in entity_ids)
+        assert {
+            entity.entity_id
+            for entity in er.async_entries_for_config_entry(
+                er.async_get(hass), config_entry.entry_id
+            )
+        } == entity_ids
 
 
 @pytest.mark.parametrize("unique_id", ["eta.test:8080", "future-device-serial", None])

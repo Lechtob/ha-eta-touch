@@ -1,13 +1,80 @@
+# Readiness tracking, not an awarded tier. See docs/CORE_READINESS.md.
 rules:
-  config-flow: done
-  config-flow-test-coverage: done
-  runtime-data: done
-  test-before-configure: done
-  test-before-setup: done
-  unique-config-entry: done
-  appropriate-polling: done
-  entity-unique-id: done
+  # Bronze
+  action-setup:
+    status: exempt
+    comment: The read-only integration registers no actions.
+  appropriate-polling:
+    status: done
+    comment: One coordinator polls at 30 seconds by default; setup permits 10-3600 seconds.
+  brands:
+    status: todo
+    comment: Verify and submit official brands assets; local HACS assets alone are insufficient.
+  common-modules:
+    status: done
+    comment: Shared coordinator, entity, constants and parsing helpers have dedicated modules.
+  config-flow-test-coverage:
+    status: done
+    comment: CI requires full config_flow.py line and branch coverage.
+  config-flow:
+    status: todo
+    comment: >-
+      UI setup and reconfigure work, but polling/discovery preferences still live in
+      entry.data. Move them into options with migration and add field descriptions.
+  dependency-transparency:
+    status: done
+    comment: README links the public py-etatouch-restful source and describes local HTTP/XML.
+  docs-actions:
+    status: exempt
+    comment: No integration-specific actions are provided.
+  docs-triggers:
+    status: exempt
+    comment: No integration-specific triggers are provided.
+  docs-conditions:
+    status: exempt
+    comment: No integration-specific conditions are provided.
+  docs-high-level-description:
+    status: todo
+    comment: README content is prepared; port it to home-assistant.io for the Core submission.
+  docs-installation-instructions:
+    status: todo
+    comment: README covers prerequisites and HACS; upstream docs must describe Core setup.
+  docs-removal-instructions:
+    status: todo
+    comment: README removal steps are prepared; upstream documentation is still pending.
+  entity-event-setup:
+    status: done
+    comment: CoordinatorEntity manages subscriptions; test_setup verifies polling stops on unload.
+  entity-unique-id:
+    status: done
+    comment: Entity IDs derive from the stable entry ID and variable URI or active-errors suffix.
   has-entity-name: done
+  runtime-data: done
+  test-before-configure:
+    status: done
+    comment: Setup and reconfiguration validate the API connection before saving.
+  test-before-setup:
+    status: done
+    comment: Setup awaits the first coordinator refresh; connection failures trigger setup retry.
+  unique-config-entry:
+    status: done
+    comment: >-
+      Normalized host/port duplicates are rejected. Hardware identity is not verified;
+      different DNS aliases for one controller remain a documented limitation.
+  # Selected higher-tier rules; unlisted rules are not claimed as complete.
+  config-entry-unloading:
+    status: done
+    comment: Repeated unload/setup tests verify no background polling or duplicate entities.
+  entity-unavailable:
+    status: done
+    comment: Sensor and active-error tests cover partial failures, controller outages and recovery.
+  integration-owner: done
+  parallel-updates:
+    status: done
+    comment: Both read-only platforms explicitly set PARALLEL_UPDATES to 0 with coordinator reads.
+  test-coverage:
+    status: todo
+    comment: Audit per-module coverage against the Silver requirement; aggregate coverage is not enough.
   entity-translations: done
   devices: done
   reconfiguration-flow: done
