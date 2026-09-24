@@ -20,7 +20,7 @@ Do not advertise universal ETA model/firmware compatibility.
 
 ## Automated release gates
 
-- [ ] Library 0.2.1 is available from PyPI; the manifest and both test environments pin it.
+- [x] Library 0.2.1 is available from PyPI; the manifest and both test environments pin it.
 - [ ] Full tests and config-flow line/branch coverage pass on HA 2026.8.0 and 2026.9.3.
 - [ ] CI, HACS and hassfest pass on the exact integration release commit.
 - [ ] The release tag points to the reviewed code and matches the manifest version.
@@ -80,3 +80,6 @@ out of public PRs and issues. A concise sanitized result is sufficient.
    and rerun all gates. Merge the release PR into `main`, publish the stable tag,
    then merge `main` back into `develop` without losing release changes.
 5. Do not claim Core inclusion or HACS default-catalog inclusion based on this release.
+
+The official HACS submission is prepared in [HACS_SUBMISSION.md](HACS_SUBMISSION.md).
+Complete stable-release acceptance before opening that upstream submission.

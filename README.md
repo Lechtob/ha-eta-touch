@@ -269,6 +269,10 @@ This is still a HACS custom integration, not an accepted Home Assistant Core
 integration or an awarded quality-scale tier. See [the Core readiness checklist](docs/CORE_READINESS.md)
 for verified evidence, remaining work, and the intended upstream submission scope.
 
+The integration is currently installed through a HACS custom repository. Preparation
+for the official HACS catalogue is tracked in [the HACS submission checklist](docs/HACS_SUBMISSION.md);
+it is not yet officially included. Core inclusion is a separate process.
+
 ## Repository Setup
 
 Empfohlene GitHub-Repo-Einstellungen:
