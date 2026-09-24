@@ -29,7 +29,7 @@ async def test_setup_and_unload(hass, mock_client, config_entry):
 
 
 async def test_setup_offline_retries(hass, mock_client, config_entry):
-    mock_client.get_menu.side_effect = EtaTouchConnectionError("offline")
+    mock_client.get_variable.side_effect = EtaTouchConnectionError("offline")
     config_entry.add_to_hass(hass)
     assert not await hass.config_entries.async_setup(config_entry.entry_id)
     assert config_entry.state is ConfigEntryState.SETUP_RETRY
