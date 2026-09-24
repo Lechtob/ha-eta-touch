@@ -285,7 +285,7 @@ async def test_menu_failure_retries_discovery(hass, mock_client, config_entry, f
     mock_client.get_menu.return_value = [menu_block("Room", GOOD_URI, ROOM_PATH)]
     freezer.tick(timedelta(seconds=60))
     async_fire_time_changed(hass, dt_util.utcnow())
-    await hass.async_block_till_done()
+    await hass.async_block_till_done(wait_background_tasks=True)
     assert config_entry.state is ConfigEntryState.LOADED
     assert state_for(hass, config_entry, GOOD_URI).state == "42.5"
     assert mock_client.get_menu.await_count == 2
