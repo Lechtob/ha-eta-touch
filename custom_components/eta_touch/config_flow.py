@@ -30,7 +30,7 @@ _LOGGER = logging.getLogger(__name__)
 class EtaTouchConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle an ETA Touch config flow."""
 
-    VERSION = 1
+    VERSION = 2
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -40,34 +40,47 @@ class EtaTouchConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            await self.async_set_unique_id(f"{user_input[CONF_HOST]}:{user_input[CONF_PORT]}")
-            self._abort_if_unique_id_configured()
+            user_input = dict(user_input)
+            user_input[CONF_HOST] = user_input[CONF_HOST].strip().lower().rstrip(".")
+            user_input.setdefault(CONF_PORT, DEFAULT_PORT)
+            for entry in self._async_current_entries():
+                if (
+                    entry.data[CONF_HOST].strip().lower().rstrip(".") == user_input[CONF_HOST]
+                    and entry.data.get(CONF_PORT, DEFAULT_PORT) == user_input[CONF_PORT]
+                ):
+                    return self.async_abort(reason="already_configured")
             try:
                 parse_variable_lines(user_input.get(CONF_VARIABLES, ""))
-                await self._validate_connection(user_input)
             except ValueError:
                 errors[CONF_VARIABLES] = "invalid_variables"
-            except EtaTouchConnectionError:
-                errors["base"] = "cannot_connect"
-            except EtaTouchResponseError:
-                errors["base"] = "invalid_response"
-            except Exception:
-                _LOGGER.exception("Unexpected error while connecting to ETA Touch")
-                errors["base"] = "unknown"
             else:
-                return self.async_create_entry(
-                    title=user_input.get(CONF_NAME) or DEFAULT_NAME,
-                    data=user_input,
-                )
+                try:
+                    await self._validate_connection(user_input)
+                except EtaTouchConnectionError:
+                    errors["base"] = "cannot_connect"
+                except EtaTouchResponseError:
+                    errors["base"] = "invalid_response"
+                except Exception:
+                    _LOGGER.exception("Unexpected error while connecting to ETA Touch")
+                    errors["base"] = "unknown"
+                else:
+                    return self.async_create_entry(
+                        title=user_input.get(CONF_NAME) or DEFAULT_NAME,
+                        data=user_input,
+                    )
 
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
                 {
                     vol.Optional(CONF_NAME, default=DEFAULT_NAME): str,
-                    vol.Required(CONF_HOST): str,
-                    vol.Optional(CONF_PORT, default=DEFAULT_PORT): int,
-                    vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
+                    vol.Required(CONF_HOST): vol.All(str, vol.Strip, vol.Length(min=1)),
+                    vol.Optional(CONF_PORT, default=DEFAULT_PORT): vol.All(
+                        vol.Coerce(int), vol.Range(min=1, max=65535)
+                    ),
+                    vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): vol.All(
+                        vol.Coerce(int), vol.Range(min=10, max=3600)
+                    ),
                     vol.Optional(CONF_AUTO_DISCOVERY, default=DEFAULT_AUTO_DISCOVERY): bool,
                     vol.Optional(
                         CONF_MAX_DISCOVERED_VARIABLES,

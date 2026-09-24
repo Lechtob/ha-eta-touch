@@ -3,36 +3,36 @@
   "config": {
     "step": {
       "user": {
-        "title": "ETA Touch verbinden",
-        "description": "Verbinde Home Assistant mit dem lokalen ETA Touch REST API.",
+        "title": "Connect ETA Touch",
+        "description": "Connect Home Assistant to the local ETA Touch REST API.",
         "data": {
           "name": "Name",
           "host": "Host",
           "port": "Port",
-          "scan_interval": "Abfrageintervall",
-          "auto_discovery": "Sensoren automatisch erkennen",
-          "max_discovered_variables": "Maximale automatisch erkannte Sensoren",
-          "variables": "Sensorvariablen"
+          "scan_interval": "Scan interval",
+          "auto_discovery": "Discover sensors automatically",
+          "max_discovered_variables": "Maximum automatically discovered sensors",
+          "variables": "Sensor variables"
         },
         "data_description": {
-          "variables": "Optional. Eine Variable pro Zeile als Name=112/10021/0/0/12112. Wenn leer, wird der ETA-Menuebaum automatisch erkannt."
+          "variables": "Optional. One variable per line as Name=112/10021/0/0/12112. If empty, the ETA menu tree is discovered automatically."
         }
       }
     },
     "error": {
-      "cannot_connect": "Verbindung fehlgeschlagen",
-      "invalid_response": "Unerwartete Antwort vom ETA Touch API",
-      "invalid_variables": "Die Variablenliste ist ungueltig",
-      "unknown": "Unerwarteter Fehler"
+      "cannot_connect": "Failed to connect",
+      "invalid_response": "Unexpected response from the ETA Touch API",
+      "invalid_variables": "The variable list is invalid",
+      "unknown": "Unexpected error"
     },
     "abort": {
-      "already_configured": "Dieses ETA Touch Geraet ist bereits konfiguriert"
+      "already_configured": "This ETA Touch device is already configured"
     }
   },
   "entity": {
     "binary_sensor": {
       "active_errors": {
-        "name": "Aktive Fehler"
+        "name": "Active errors"
       }
     }
   }

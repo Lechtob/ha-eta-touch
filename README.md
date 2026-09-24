@@ -2,6 +2,8 @@
 
 HACS-compatible, read-only Home Assistant integration for ETA Touch heating systems.
 
+Requires Home Assistant 2026.8.0 or newer.
+
 ## Installation
 
 1. Add `https://github.com/Lechtob/ha-eta-touch` as a HACS custom repository of type

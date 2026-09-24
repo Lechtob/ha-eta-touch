@@ -2,6 +2,19 @@
 
 All notable changes to the ETA Touch Home Assistant integration will be documented here.
 
+## Unreleased
+
+- Add real Home Assistant config-flow, setup, registry migration and unload tests.
+- Stop using host/port as a stable config-entry ID; prevent duplicate endpoints and
+  migrate existing entries without replacing their entry or entity IDs.
+- Validate port and polling interval inputs and distinguish malformed API data from
+  invalid manual variable configuration.
+- Migrate functional-block identifiers to valid two-part identifiers without
+  replacing their device registry IDs.
+- Replace deprecated `via_device` references with `via_device_id`, preparing for
+  Home Assistant 2027.8. Register the controller before setting up its functional blocks.
+- Require Home Assistant 2026.8.0 or newer for the updated device registry API.
+
 ## 0.4.1 - 2026-09-24
 
 - Convert ETA runtime text such as `18727h 42m` to numeric seconds, fixing unavailable
