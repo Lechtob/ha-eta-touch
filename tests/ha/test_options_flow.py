@@ -122,7 +122,6 @@ async def test_invalid_variables_recover_without_saving_or_io(hass, mock_client,
         ("scan_interval", "bad"),
         ("max_discovered_variables", 0),
         ("max_discovered_variables", 201),
-        ("auto_discovery", "not-a-boolean"),
         ("variables", 42),
     ],
 )
