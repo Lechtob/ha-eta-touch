@@ -10,6 +10,6 @@ rules:
   has-entity-name: done
   devices: done
   reconfiguration-flow: done
-  diagnostics: todo
+  diagnostics: done
   strict-typing: todo
 
