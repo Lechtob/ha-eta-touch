@@ -132,6 +132,13 @@ async def test_runtime_seconds(hass, mock_client, config_entry, raw, display):
 async def test_temperature_conversion(hass, mock_client, config_entry, path):
     hass.config.units = US_CUSTOMARY_SYSTEM
     entity_id, _ = await setup_sensor(hass, mock_client, config_entry, "\u00b0C", path)
+    if path:
+        # HA leaves deltas in the native unit until the user selects a display unit.
+        assert hass.states.get(entity_id).attributes["unit_of_measurement"] == "\u00b0C"
+        er.async_get(hass).async_update_entity_options(
+            entity_id, "sensor", {"unit_of_measurement": "\u00b0F"}
+        )
+        await hass.async_block_till_done()
     state = hass.states.get(entity_id)
     assert state.attributes["device_class"] == ("temperature_delta" if path else "temperature")
     assert state.attributes["unit_of_measurement"] == "\u00b0F"
