@@ -4,6 +4,8 @@ All notable changes to the ETA Touch Home Assistant integration will be document
 
 ## Unreleased
 
+- Add a reconfigure flow for host and port, validating the connection and preventing
+  duplicate endpoints before updating and reloading the existing entry.
 - Assign sensor device classes and distinguish measurements, lifetime totals and
   resettable maintenance counters. Keep numeric metadata during invalid readings.
 - Classify the warm-water supply difference as a temperature delta for correct
