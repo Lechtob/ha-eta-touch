@@ -43,7 +43,7 @@ class EtaTouchVariableSensor(
         self._attr_name = variable.name
         self._attr_unique_id = f"{coordinator.entry.entry_id}_{variable.uri.replace('/', '_')}"
         value = coordinator.data.values.get(variable.uri)
-        if value is not None and value.unit and isinstance(value.native_value, int | float):
+        if value is not None and value.unit and isinstance(self.native_value, int | float):
             self._attr_state_class = SensorStateClass.MEASUREMENT
         if variable.is_diagnostic or is_diagnostic_variable(variable.path, variable.name):
             self._attr_entity_category = EntityCategory.DIAGNOSTIC
