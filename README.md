@@ -43,6 +43,24 @@ An unavailable variable affects only its own sensor and is retried on the next u
 Connection failures and controller-wide HTTP failures still mark the integration unavailable.
 Manually configured variables do not require a menu request.
 
+### Diagnostics download
+
+On the integration page, open the ETA Touch entry menu and select **Download
+diagnostics**. Attach that JSON file when reporting a discovery or value-parsing
+issue. Review the file before sharing it.
+
+The ETA section includes safe configuration settings, update status, variable URIs,
+anonymous block aliases, units, numeric raw values and scaling metadata. Failed
+updates explicitly mark the cached snapshot as stale. Missing variables remain
+listed without a value. Only the number of active errors is included.
+
+Hostnames, IP addresses, entry/device/room names, credentials, arbitrary options,
+menu paths, formatted display text and error descriptions are excluded. Numeric
+measurements and variable addresses are retained for troubleshooting. Home Assistant
+adds its own standard system and integration version information to the download.
+The export reads cached data only: it never contacts or writes to the boiler.
+An entry that has not completed setup can still return basic configuration diagnostics.
+
 ### Sensor statistics
 
 Temperature, pressure, power, voltage, current, mass and duration values use Home
