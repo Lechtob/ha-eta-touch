@@ -56,6 +56,7 @@ async def test_unload_stops_polling_and_reload_has_one_poll(
         for entity in er.async_entries_for_config_entry(er.async_get(hass), config_entry.entry_id)
     }
     assert len(entity_ids) == 2
+    expected_states = {entity_id: hass.states.get(entity_id).state for entity_id in entity_ids}
 
     for _ in range(2):
         mock_client.reset_mock()
@@ -67,7 +68,12 @@ async def test_unload_stops_polling_and_reload_has_one_poll(
 
         assert await hass.config_entries.async_unload(config_entry.entry_id)
         await hass.async_block_till_done()
-        assert all(hass.states.get(entity_id) is None for entity_id in entity_ids)
+        assert config_entry.state is ConfigEntryState.NOT_LOADED
+        # HA retains registry-backed entities as unavailable after unloading.
+        for entity_id in entity_ids:
+            state = hass.states.get(entity_id)
+            assert state.state == "unavailable"
+            assert state.attributes["restored"] is True
         mock_client.reset_mock()
         freezer.tick(120)
         async_fire_time_changed(hass, dt_util.utcnow())
@@ -76,7 +82,9 @@ async def test_unload_stops_polling_and_reload_has_one_poll(
 
         assert await hass.config_entries.async_setup(config_entry.entry_id)
         await hass.async_block_till_done()
-        assert all(hass.states.get(entity_id) is not None for entity_id in entity_ids)
+        assert {
+            entity_id: hass.states.get(entity_id).state for entity_id in entity_ids
+        } == expected_states
         assert {
             entity.entity_id
             for entity in er.async_entries_for_config_entry(
