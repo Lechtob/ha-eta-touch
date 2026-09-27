@@ -11,5 +11,5 @@
   "issue_tracker": "https://github.com/Lechtob/ha-eta-touch/issues",
   "loggers": ["etatouch_restful"],
   "requirements": ["py-etatouch-restful==0.2.1"],
-  "version": "1.0.0-rc.1"
+  "version": "1.0.0-rc.2"
 }

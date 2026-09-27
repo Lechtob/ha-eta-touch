@@ -6,7 +6,7 @@ Requires Home Assistant 2026.8.0 or newer.
 
 ## Release candidate
 
-`1.0.0-rc.1` is a **pre-release** for the first stable, read-only monitoring release.
+`1.0.0-rc.2` is a **pre-release** for the first stable, read-only monitoring release.
 The scope is sensors, an active-error binary sensor, functional-block grouping,
 diagnostics, discovery, and UI configuration/options. Climate entities, setpoint
 changes and other boiler write actions are not part of 1.0.

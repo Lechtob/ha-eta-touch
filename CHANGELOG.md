@@ -4,6 +4,11 @@ All notable changes to the ETA Touch Home Assistant integration will be document
 
 ## Unreleased
 
+## 1.0.0-rc.2 - 2026-09-27
+
+This is a pre-release, not the final 1.0.0 release. It retains the same minimum
+Home Assistant version and configuration schema as rc.1.
+
 - Exclude the field-verified informational priority `Nachricht` from the active-error
   binary sensor. Warnings, faults, empty and unknown priorities still activate it.
 - Preserve every controller message in the existing `errors` attribute. Diagnostics

@@ -1,7 +1,14 @@
 # Release acceptance: 1.0.0
 
-Candidate: `1.0.0-rc.1`. Final release approval is **pending hardware testing**.
+Candidate: `1.0.0-rc.2`. Final release approval is **pending hardware testing**.
 CI uses mocked ETA transport and cannot establish multi-day operation on a boiler.
+
+The rc.1 field review covered approximately 59 hours with no new integration
+errors and valid runtime statistics. A controller maintenance message exposed an
+informational-priority classification issue, corrected in rc.2. Previous evidence
+does not constitute field acceptance of the new candidate. Verify that `Nachricht`
+does not activate the problem sensor and that all original message details remain
+available; do not induce a real fault for testing.
 
 ## Stable scope
 
