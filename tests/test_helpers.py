@@ -23,6 +23,29 @@ normalize_function_block = helpers.normalize_function_block
 format_sensor_value = helpers.format_sensor_value
 
 
+@pytest.mark.parametrize(
+    "priority,expected",
+    [
+        ("Nachricht", True),
+        ("  NACHRICHT\t", True),
+        ("Warnung", False),
+        ("Fehler", False),
+        ("Error", False),
+        ("Warning", False),
+        ("Message", False),
+        ("Information", False),
+        ("Nachricht Fehler", False),
+        ("", False),
+        (" ", False),
+        ("0", False),
+        ("1", False),
+        ("new-priority", False),
+    ],
+)
+def test_informational_priority_is_conservative(priority, expected):
+    assert helpers.is_informational_priority(priority) is expected
+
+
 def test_parse_variable_lines_accepts_named_and_plain_variables() -> None:
     variables = parse_variable_lines(
         """

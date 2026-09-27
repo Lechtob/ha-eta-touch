@@ -1,0 +1,4 @@
+# Minimum supported Home Assistant 2026.8.0; Python 3.14 on Linux.
+pytest-homeassistant-custom-component==0.13.354
+py-etatouch-restful==0.2.1
+ruff==0.16.8

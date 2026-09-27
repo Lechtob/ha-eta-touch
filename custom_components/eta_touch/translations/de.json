@@ -1,6 +1,18 @@
 {
   "config": {
     "step": {
+      "reconfigure": {
+        "title": "ETA Touch Verbindung \u00e4ndern",
+        "description": "Gib die neue Adresse desselben ETA-Kessels ein. Seine Identit\u00e4t kann nicht automatisch gepr\u00fcft werden. Bestehende Entit\u00e4ten und Sensoreinstellungen bleiben erhalten.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        },
+        "data_description": {
+          "host": "Lokaler Hostname oder IP-Adresse des ETA-Kessels, ohne http:// oder Pfad.",
+          "port": "Port der lokalen REST-Schnittstelle, normalerweise 8080."
+        }
+      },
       "user": {
         "title": "ETA Touch verbinden",
         "description": "Verbinde Home Assistant mit dem lokalen ETA Touch REST API.",
@@ -14,21 +26,174 @@
           "variables": "Sensorvariablen"
         },
         "data_description": {
-          "variables": "Optional. Eine Variable pro Zeile als Name=112/10021/0/0/12112. Wenn leer, wird der ETA-Menuebaum automatisch erkannt."
+          "name": "Anzeigename dieses Integrationseintrags.",
+          "host": "Lokaler Hostname oder IP-Adresse des ETA-Kessels, ohne http:// oder Pfad.",
+          "port": "Port der lokalen REST-Schnittstelle, normalerweise 8080.",
+          "scan_interval": "Abstand zwischen Abfragen in Sekunden (10 bis 3600). Standard: 30.",
+          "auto_discovery": "Erkennt Sensoren automatisch, wenn die manuelle Variablenliste leer ist.",
+          "max_discovered_variables": "Maximal 1 bis 200 automatisch erkannte Sensoren. Standard: 48. Gilt nicht fuer manuelle Listen.",
+          "variables": "Optional: eine URI oder Name=112/10021/0/0/12112 pro Zeile. Eine manuelle Liste ersetzt die automatische Erkennung. Fuer automatische Erkennung die Liste leeren und Erkennung aktivieren."
         }
       }
     },
     "error": {
+      "already_configured": "Diese Adresse und dieser Port werden bereits von einem anderen ETA Touch Eintrag verwendet",
       "cannot_connect": "Verbindung fehlgeschlagen",
       "invalid_response": "Unerwartete Antwort vom ETA Touch API",
       "invalid_variables": "Die Variablenliste ist ungueltig",
       "unknown": "Unerwarteter Fehler"
     },
     "abort": {
+      "reconfigure_successful": "Die Verbindungseinstellungen wurden aktualisiert",
       "already_configured": "Dieses ETA Touch Geraet ist bereits konfiguriert"
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "ETA Touch Optionen",
+        "description": "Nach dem Speichern wird die Integration neu geladen. Nicht mehr ausgewaehlte Sensoren bleiben als nicht verfuegbare Registereintraege erhalten. Es werden keine Einstellungen am Kessel geaendert.",
+        "data": {
+          "scan_interval": "Abfrageintervall",
+          "auto_discovery": "Sensoren automatisch erkennen",
+          "max_discovered_variables": "Maximale automatisch erkannte Sensoren",
+          "variables": "Sensorvariablen"
+        },
+        "data_description": {
+          "scan_interval": "Abstand zwischen Abfragen in Sekunden (10 bis 3600). Standard: 30.",
+          "auto_discovery": "Erkennt Sensoren automatisch, wenn die manuelle Variablenliste leer ist.",
+          "max_discovered_variables": "Maximal 1 bis 200 automatisch erkannte Sensoren. Standard: 48. Gilt nicht fuer manuelle Listen.",
+          "variables": "Optional: eine URI oder Name=112/10021/0/0/12112 pro Zeile. Eine manuelle Liste ersetzt die automatische Erkennung. Fuer automatische Erkennung die Liste leeren und Erkennung aktivieren."
+        }
+      }
+    },
+    "error": {
+      "invalid_variables": "Die Variablenliste ist ungueltig"
+    }
+  },
   "entity": {
+    "sensor": {
+      "boiler_temperature": {
+        "name": "Kessel"
+      },
+      "boiler_pressure": {
+        "name": "Kesseldruck"
+      },
+      "flue_gas_temperature": {
+        "name": "Abgas"
+      },
+      "residual_oxygen": {
+        "name": "Restsauerstoff"
+      },
+      "room_temperature": {
+        "name": "Raum"
+      },
+      "room_target_temperature": {
+        "name": "Raum Soll"
+      },
+      "operating_mode": {
+        "name": "Betrieb"
+      },
+      "outside_temperature": {
+        "name": "Au\u00dfentemperatur"
+      },
+      "flow_temperature": {
+        "name": "Vorlauf"
+      },
+      "heating_curve_temperature": {
+        "name": "Heizkurve"
+      },
+      "boiler_target_temperature": {
+        "name": "Kessel Soll"
+      },
+      "boiler_lower_temperature": {
+        "name": "Kessel unten"
+      },
+      "flow_controller_1_requested_temperature": {
+        "name": "Vorlaufregler 1 Angeforderte Temperatur"
+      },
+      "flow_controller_1_requested_power": {
+        "name": "Vorlaufregler 1 Angeforderte Leistung"
+      },
+      "flow_controller_2_requested_temperature": {
+        "name": "Vorlaufregler 2 Angeforderte Temperatur"
+      },
+      "flow_controller_2_requested_power": {
+        "name": "Vorlaufregler 2 Angeforderte Leistung"
+      },
+      "hot_water_temperature": {
+        "name": "Warmwasserspeicher"
+      },
+      "hot_water_target_temperature": {
+        "name": "Warmwasserspeicher Soll"
+      },
+      "coil_power": {
+        "name": "Registerleistung"
+      },
+      "flow_temperature_difference": {
+        "name": "Vorlauf Differenz"
+      },
+      "pellet_container_content": {
+        "name": "Inhalt Pelletsbeh\u00e4lter"
+      },
+      "total_pellet_consumption": {
+        "name": "Gesamtverbrauch"
+      },
+      "consumption_since_ash_removal": {
+        "name": "Verbrauch seit Entaschung"
+      },
+      "consumption_since_ash_box_emptied": {
+        "name": "Verbrauch seit Aschebox leeren"
+      },
+      "flue_gas_fan_speed": {
+        "name": "Abgasgebl\u00e4se"
+      },
+      "air_damper_position": {
+        "name": "Luftschieber Stellung"
+      },
+      "flow_mixer_1_temperature": {
+        "name": "Vorlaufmischer 1 Ist Temperatur"
+      },
+      "flow_mixer_1_position": {
+        "name": "Vorlaufmischer 1 Position"
+      },
+      "flow_mixer_2_temperature": {
+        "name": "Vorlaufmischer 2 Ist Temperatur"
+      },
+      "flow_mixer_2_position": {
+        "name": "Vorlaufmischer 2 Position"
+      },
+      "pellet_stock": {
+        "name": "Vorrat"
+      },
+      "extraction_rate": {
+        "name": "Austragleistung"
+      },
+      "extraction_screw_runtime": {
+        "name": "Laufzeit Austragschnecke"
+      },
+      "full_load_runtime": {
+        "name": "Volllaststunden"
+      },
+      "flue_gas_fan_runtime": {
+        "name": "Laufzeit Abgasgebl\u00e4se"
+      },
+      "heating_cycle_count": {
+        "name": "Z\u00e4hler Heizbetriebe"
+      },
+      "ignition_count": {
+        "name": "Z\u00e4hler Z\u00fcndungen"
+      },
+      "stoker_runtime": {
+        "name": "Laufzeit Stoker"
+      },
+      "ash_removal_runtime": {
+        "name": "Laufzeit Entaschung"
+      },
+      "suction_turbine_runtime": {
+        "name": "Laufzeit Saugturbine"
+      }
+    },
     "binary_sensor": {
       "active_errors": {
         "name": "Aktive Fehler"

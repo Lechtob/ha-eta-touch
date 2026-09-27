@@ -36,10 +36,10 @@ def eta_touch_function_block_device_info(
 
     block = normalize_function_block(function_block)
     return DeviceInfo(
-        identifiers={(DOMAIN, coordinator.entry.entry_id, block)},
+        identifiers={(DOMAIN, f"{coordinator.entry.entry_id}:{block}")},
         name=f"ETA {block}",
         manufacturer="ETA Heiztechnik",
         model="ETA Touch functional block",
-        via_device=(DOMAIN, coordinator.entry.entry_id),
+        via_device_id=coordinator.controller_device_id,
         configuration_url=coordinator.client.base_url,
     )
