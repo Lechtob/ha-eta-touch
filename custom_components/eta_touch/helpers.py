@@ -33,6 +33,12 @@ class EtaConfiguredVariable:
     translation_key: str | None = None
 
 
+def is_informational_priority(priority: str) -> bool:
+    """Recognize only the informational priority verified on an ETA controller."""
+    # Unverified translations and numeric codes must not hide potential faults.
+    return priority.strip().casefold() == "nachricht"
+
+
 def parse_variable_lines(value: str) -> tuple[EtaConfiguredVariable, ...]:
     """Parse one configured variable per line.
 

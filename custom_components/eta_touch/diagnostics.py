@@ -20,7 +20,12 @@ from .const import (
     DEFAULT_MAX_DISCOVERED_VARIABLES,
     DEFAULT_SCAN_INTERVAL,
 )
-from .helpers import format_sensor_value, is_diagnostic_variable, validate_variable_uri
+from .helpers import (
+    format_sensor_value,
+    is_diagnostic_variable,
+    is_informational_priority,
+    validate_variable_uri,
+)
 
 _SAFE_UNITS = frozenset(
     {
@@ -67,6 +72,7 @@ async def async_get_config_entry_diagnostics(
         "coordinator": None,
         "variables": [],
         "active_error_count": None,
+        "informational_message_count": None,
     }
     coordinator = getattr(entry, "runtime_data", None)
     if coordinator is None:
@@ -108,7 +114,11 @@ async def async_get_config_entry_diagnostics(
             }
         )
     if data is not None:
-        result["active_error_count"] = len(data.errors)
+        informational_count = sum(
+            is_informational_priority(error.priority) for error in data.errors
+        )
+        result["active_error_count"] = len(data.errors) - informational_count
+        result["informational_message_count"] = informational_count
     return result
 
 
