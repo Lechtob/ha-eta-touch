@@ -97,6 +97,7 @@ async def test_download_redacts_sensitive_data_without_io(
         "configured_variable_count": 2,
     }
     assert data["active_error_count"] == 1
+    assert data["informational_message_count"] == 0
     assert data["variables"][0] == {
         "uri": URI,
         "block": "block_1",
@@ -202,6 +203,7 @@ async def test_no_runtime_data(hass, mock_client, config_entry, failed_setup):
     data = await async_get_config_entry_diagnostics(hass, config_entry)
     assert data["coordinator"] is None
     assert data["active_error_count"] is None
+    assert data["informational_message_count"] is None
     assert data["variables"] == []
     assert data["configuration"]["state"] == ("setup_retry" if failed_setup else "not_loaded")
     assert mock_client.mock_calls == []
@@ -247,12 +249,48 @@ async def test_missing_snapshot_is_not_reported_as_current(hass, mock_client, co
     assert not data["coordinator"]["has_snapshot"]
     assert data["coordinator"]["data_is_stale"]
     assert data["active_error_count"] is None
+    assert data["informational_message_count"] is None
     assert len(data["variables"]) == 2
     for variable in data["variables"]:
         assert not variable["available"]
         assert not variable["has_cached_value"]
         assert variable["value"] is None
     assert mock_client.mock_calls == []
+
+
+@pytest.mark.parametrize(
+    "priorities,error_count,info_count",
+    [
+        ([], 0, 0),
+        (["Nachricht"], 0, 1),
+        (["Nachricht", " NACHRICHT ", "Warnung", "private-priority"], 2, 2),
+        (["", "0", "Message"], 3, 0),
+    ],
+)
+async def test_message_counts_are_classified_without_exposing_text(
+    hass, mock_client, config_entry, priorities, error_count, info_count
+):
+    mock_client.get_errors.return_value = [
+        EtaError(
+            "private-uri", "private-name", "private-message", priority, "private-time", "private"
+        )
+        for priority in priorities
+    ]
+    coordinator = await setup_entry(hass, mock_client, config_entry)
+    mock_client.reset_mock()
+    data = await async_get_config_entry_diagnostics(hass, config_entry)
+    assert data["active_error_count"] == error_count
+    assert data["informational_message_count"] == info_count
+    assert "private" not in json.dumps(data).lower()
+    assert len(coordinator.data.errors) == len(priorities)
+    assert mock_client.mock_calls == []
+
+    mock_client.get_errors.side_effect = EtaTouchConnectionError("offline")
+    await coordinator.async_refresh()
+    data = await async_get_config_entry_diagnostics(hass, config_entry)
+    assert data["coordinator"]["data_is_stale"]
+    assert data["active_error_count"] == error_count
+    assert data["informational_message_count"] == info_count
 
 
 async def test_untrusted_uri_is_redacted(hass, mock_client, config_entry):

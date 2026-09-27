@@ -10,6 +10,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .coordinator import EtaTouchDataUpdateCoordinator
 from .entity import EtaTouchEntity
+from .helpers import is_informational_priority
 
 # The coordinator centralizes all reads for this read-only platform.
 PARALLEL_UPDATES = 0
@@ -43,11 +44,13 @@ class EtaTouchActiveErrorsBinarySensor(
     def is_on(self) -> bool:
         """Return true when active errors are present."""
 
-        return bool(self.coordinator.data.errors)
+        return any(
+            not is_informational_priority(error.priority) for error in self.coordinator.data.errors
+        )
 
     @property
     def extra_state_attributes(self) -> dict[str, object]:
-        """Return active error details."""
+        """Keep all controller messages, including informational ones, for compatibility."""
 
         return {
             "errors": [
@@ -61,4 +64,3 @@ class EtaTouchActiveErrorsBinarySensor(
                 for error in self.coordinator.data.errors
             ]
         }
-

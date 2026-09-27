@@ -124,6 +124,24 @@ name. Their history is not deliberately purged. Devices are not automatically
 deleted when their last sensor is deselected. Switching between manual and automatic
 selection can change a sensor's function-block association.
 
+### Active errors and informational messages
+
+The active-error binary sensor turns on for warnings, errors and unrecognized
+priorities. The verified informational priority `Nachricht` (ignoring case and
+surrounding whitespace) does not turn it on. For example, the controller's weekly
+anti-blocking maintenance message is informational, not a fault.
+
+Only this field-verified priority is excluded. Empty priorities, numeric codes and
+unverified translations remain alarm-relevant until their meaning is established.
+Classification uses the priority, never a match against the message text.
+
+For compatibility, the existing `errors` attribute still contains **all** messages
+returned by ETA, including informational ones, with their original details. It may
+therefore be non-empty while the sensor is off. Use the binary sensor state for
+fault automations, not the length of this raw attribute. Diagnostics separately
+count `active_error_count` and `informational_message_count` without exposing text.
+A connection failure still makes the sensor unavailable, not off.
+
 ### Diagnostics download
 
 On the integration page, open the ETA Touch entry menu and select **Download
